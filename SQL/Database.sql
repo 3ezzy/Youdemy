@@ -1,3 +1,6 @@
+-- create database YoudemyDB;
+
+-- use YoudemyDB;
 
 -- Table for Users
 CREATE TABLE users (
@@ -16,6 +19,26 @@ CREATE TABLE categories (
     name VARCHAR(100) NOT NULL UNIQUE,
     created_at DATETIME DEFAULT GETDATE()
 );
+INSERT INTO categories (name) VALUES ('Programming');
+
+INSERT INTO categories (name) VALUES ('Data Science');
+
+INSERT INTO categories (name) VALUES ('Web Development');
+
+INSERT INTO categories (name) VALUES ('Mobile Development');
+
+INSERT INTO categories (name) VALUES ('Artificial Intelligence');
+
+INSERT INTO categories (name) VALUES ('Cloud Computing');
+
+INSERT INTO categories (name) VALUES ('Cybersecurity');
+
+INSERT INTO categories (name) VALUES ('Digital Marketing');
+
+INSERT INTO categories (name) VALUES ('Graphic Design');
+
+INSERT INTO categories (name) VALUES ('Business & Finance');
+
 
 -- Table for Tags
 CREATE TABLE tags (
@@ -23,6 +46,26 @@ CREATE TABLE tags (
     name VARCHAR(50) NOT NULL UNIQUE,
     created_at DATETIME DEFAULT GETDATE()
 );
+
+INSERT INTO tags (name) VALUES ('Beginner');
+
+INSERT INTO tags (name) VALUES ('Advanced');
+
+INSERT INTO tags (name) VALUES ('Python');
+
+INSERT INTO tags (name) VALUES ('JavaScript');
+
+INSERT INTO tags (name) VALUES ('Machine Learning');
+
+INSERT INTO tags (name) VALUES ('Web Development');
+
+INSERT INTO tags (name) VALUES ('Cloud Computing');
+
+INSERT INTO tags (name) VALUES ('Data Analysis');
+
+INSERT INTO tags (name) VALUES ('Cybersecurity');
+
+INSERT INTO tags (name) VALUES ('Project Management');
 
 -- Table for Courses
 CREATE TABLE courses (
