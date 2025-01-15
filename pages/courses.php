@@ -194,17 +194,17 @@
 
         <!-- Courses -->
         <li>
-          <a href="./pages/courses.php" class="leading-1 py-11px text-darkdeep1 font-medium hover:text-secondaryColor dark:text-whiteColor dark:hover:text-secondaryColor block">Courses</a>
+          <a href="courses.php" class="leading-1 py-11px text-darkdeep1 font-medium hover:text-secondaryColor dark:text-whiteColor dark:hover:text-secondaryColor block">Courses</a>
         </li>
 
         <!-- Dashboard -->
         <li>
-          <a href="./pages/dashboard.php" class="leading-1 py-11px text-darkdeep1 font-medium hover:text-secondaryColor dark:text-whiteColor dark:hover:text-secondaryColor block">Dashboard</a>
+          <a href="dashboard.php" class="leading-1 py-11px text-darkdeep1 font-medium hover:text-secondaryColor dark:text-whiteColor dark:hover:text-secondaryColor block">Dashboard</a>
         </li>
 
         <!-- Contact Us -->
         <li>
-          <a href="./pages/contact.php" class="leading-1 py-11px text-darkdeep1 font-medium hover:text-secondaryColor dark:text-whiteColor dark:hover:text-secondaryColor block">Contact Us</a>
+          <a href="contact.php" class="leading-1 py-11px text-darkdeep1 font-medium hover:text-secondaryColor dark:text-whiteColor dark:hover:text-secondaryColor block">Contact Us</a>
         </li>
       </ul>
     </div>
