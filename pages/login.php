@@ -1,3 +1,10 @@
+<?php
+require_once "../db/connection.php";
+require_once "../classes/user.php";
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -91,7 +98,7 @@
     </button>
   </div>
   <!--======= Header area start =======-->
-  <?php include ('../layout/HEADER.php'); ?>
+  <?php include('../layout/HEADER.php'); ?>
 
   <!-- main body -->
   <main class="bg-transparent">
@@ -193,7 +200,7 @@
                       class="text-contentColor dark:text-contentColor-dark mb-10px block">Username or email</label>
                     <input
                       type="text"
-                      placeholder="Your username or email"
+                      placeholder="Your name or email"
                       class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded">
                   </div>
 
@@ -269,79 +276,59 @@
                   </p>
                 </div>
 
-                <form class="pt-25px" data-aos="fade-up">
-                  <div
-                    class="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-30px gap-y-25px mb-25px">
-                    <div>
-                      <label
-                        class="text-contentColor dark:text-contentColor-dark mb-10px block">First Name</label>
-                      <input
-                        type="text"
-                        placeholder="First Name"
-                        class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded">
-                    </div>
-                    <div>
-                      <label
-                        class="text-contentColor dark:text-contentColor-dark mb-10px block">Last Name</label>
-                      <input
-                        type="text"
-                        placeholder="Last Name"
-                        class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded">
-                    </div>
-                  </div>
-                  <div
-                    class="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-30px gap-y-25px mb-25px">
-                    <div>
-                      <label
-                        class="text-contentColor dark:text-contentColor-dark mb-10px block">Username</label>
-                      <input
-                        type="text"
-                        placeholder="Username"
-                        class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded">
-                    </div>
-                    <div>
-                      <label
-                        class="text-contentColor dark:text-contentColor-dark mb-10px block">Email</label>
-                      <input
-                        type="email"
-                        placeholder="Your Email"
-                        class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded">
-                    </div>
-                  </div>
-                  <div
-                    class="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-30px gap-y-25px mb-25px">
-                    <div>
-                      <label
-                        class="text-contentColor dark:text-contentColor-dark mb-10px block">Password</label>
-                      <input
-                        type="password"
-                        placeholder="Password"
-                        class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded">
-                    </div>
-                    <div>
-                      <label
-                        class="text-contentColor dark:text-contentColor-dark mb-10px block">Re-Enter Password</label>
-                      <input
-                        type="password"
-                        placeholder="Re-Enter Password"
-                        class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded">
-                    </div>
-                  </div>
+                <?php
 
-                  <div
-                    class="text-contentColor dark:text-contentColor-dark flex items-center">
-                    <input
-                      type="checkbox"
-                      id="accept-pp"
-                      class="w-18px h-18px mr-2 block box-content">
-                    <label for="accept-pp">
-                      Accept the Terms and Privacy Policy</label>
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                  if (isset($_POST['name'], $_POST['email'], $_POST['password'], $_POST['role'])) {
+                    $name = $_POST['name'];
+                    $email = $_POST['email'];
+                    $password = $_POST['password'];
+                    $role = $_POST['role'];
+
+                    $db = (new Database())->connect();
+                    $user = new User($db);
+
+                    if ($user->register($name, $email, $password, $role)) {
+                      echo "Registration successful!";
+                    } else {
+                      echo "Registration failed!";
+                    }
+                  } else {
+                    echo "All fields are required!";
+                  }
+                }
+                ?>
+                <form class="pt-25px" data-aos="fade-up" method="POST" action="">
+                  <div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-30px gap-y-25px mb-25px">
+                    <div>
+                      <label class="text-contentColor dark:text-contentColor-dark mb-10px block">Name</label>
+                      <input type="text" name="name" placeholder="Name" class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded" required>
+                    </div>
+                    <div>
+                      <label class="text-contentColor dark:text-contentColor-dark mb-10px block">Email</label>
+                      <input type="email" name="email" placeholder="Your Email" class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded" required>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-30px gap-y-25px mb-25px">
+                    <div>
+                      <label class="text-contentColor dark:text-contentColor-dark mb-10px block">Password</label>
+                      <input type="password" name="password" placeholder="Password" class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded" required>
+                    </div>
+                    <div>
+                      <label class="text-contentColor dark:text-contentColor-dark mb-10px block">Role</label>
+                      <select name="role" class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded" required>
+                        <option value="Student">Student</option>
+                        <option value="Teacher">Teacher</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="text-contentColor dark:text-contentColor-dark flex items-center">
+                    <input type="checkbox" id="accept-pp" class="w-18px h-18px mr-2 block box-content" required>
+                    <label for="accept-pp">Accept the Terms and Privacy Policy</label>
                   </div>
                   <div class="mt-25px text-center">
-                    <button
-                      type="submit"
-                      class="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark">
-                      Log in
+                    <button type="submit" class="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark">
+                      Sign Up
                     </button>
                   </div>
                 </form>
@@ -375,8 +362,8 @@
       </div>
     </section>
   </main>
- 
-  <?php include ('../layout/FOOTER.php')?>
-<!-- Mirrored from html.themewin.com/edurcok-preview-tailwind/edurock/login.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 12 Jan 2025 03:16:42 GMT -->
+
+  <?php include('../layout/FOOTER.php') ?>
+  <!-- Mirrored from html.themewin.com/edurcok-preview-tailwind/edurock/login.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 12 Jan 2025 03:16:42 GMT -->
 
 </html>
