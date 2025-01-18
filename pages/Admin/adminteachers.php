@@ -179,7 +179,7 @@
                                 <li
                                     class="py-10px border-b border-borderColor dark:border-borderColor-dark">
                                     <a
-                                        href="admin-dashboard.html"
+                                        href="admindashboard.php"
                                         class="text-primaryColor hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -222,7 +222,7 @@
                                 <li
                                     class="py-10px border-b border-borderColor dark:border-borderColor-dark">
                                     <a
-                                        href="admin-course.html"
+                                        href="admincourses.php"
                                         class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -242,7 +242,28 @@
                                 <li
                                     class="py-10px border-b border-borderColor dark:border-borderColor-dark">
                                     <a
-                                        href="admincourses.php"
+                                        href="adminteachers.php"
+                                        class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            class="feather feather-user">
+                                            <path
+                                                d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="12" cy="7" r="4"></circle>
+                                        </svg>
+                                        Teachers & Students</a>
+                                </li>
+                                <li
+                                    class="py-10px border-b border-borderColor dark:border-borderColor-dark">
+                                    <a
+                                        href="admincategory.php"
                                         class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -315,37 +336,27 @@
                     </div>
                     <!-- dashboard content -->
                     <div class="lg:col-start-4 lg:col-span-9">
-                        <!-- Categories Section -->
+                        <!-- Teachers Section -->
                         <div class="p-10px md:px-10 md:py-50px mb-30px bg-whiteColor dark:bg-whiteColor-dark shadow-accordion dark:shadow-accordion-dark rounded-5 max-h-137.5 overflow-auto">
                             <div class="mb-6 pb-5 border-b-2 border-borderColor dark:border-borderColor-dark flex items-center justify-between gap-2 flex-wrap">
                                 <h2 class="text-2xl font-bold text-blackColor dark:text-blackColor-dark">
-                                    Categories
+                                    Teachers
                                 </h2>
-                                <a href="../../course.html" class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8">See More...</a>
+                                <a href="../../teachers.html" class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8">See More...</a>
                             </div>
                             <div class="overflow-auto">
                                 <table class="w-full text-left text-nowrap">
                                     <thead class="text-sm md:text-base text-blackColor dark:text-blackColor-dark bg-lightGrey5 dark:bg-whiteColor-dark leading-1.8 md:leading-1.8">
                                         <tr>
-                                            <th class="px-5px py-10px md:px-5">Category Name</th>
+                                            <th class="px-5px py-10px md:px-5">Teacher Name</th>
                                             <th class="px-5px py-10px md:px-5">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="text-size-13 md:text-base text-contentColor dark:text-contentColor-dark font-normal">
-                                        <!-- Example Category -->
+                                        <!-- Example Teacher -->
                                         <tr class="leading-1.8 md:leading-1.8">
                                             <th class="px-5px py-10px md:px-5 font-normal">
-                                                <p>Category 1</p>
-                                            </th>
-                                            <td class="px-5px py-10px md:px-5">
-                                                <button class="bg-transparent text-blue-500 px-4 py-2 rounded-full border-2 border-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300 mr-2">Edit</button>
-                                                <button class="bg-transparent text-red-500 px-4 py-2 rounded-full border-2 border-red-500 hover:bg-red-500 hover:text-white transition-all duration-300">Delete</button>
-                                            </td>
-                                        </tr>
-                                        <!-- Another Example Category -->
-                                        <tr class="leading-1.8 md:leading-1.8 bg-lightGrey5 dark:bg-whiteColor-dark">
-                                            <th class="px-5px py-10px md:px-5 font-normal">
-                                                <p>Category 2</p>
+                                                <p>Teacher 1</p>
                                             </th>
                                             <td class="px-5px py-10px md:px-5">
                                                 <button class="bg-transparent text-blue-500 px-4 py-2 rounded-full border-2 border-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300 mr-2">Edit</button>
@@ -357,37 +368,27 @@
                             </div>
                         </div>
 
-                        <!-- Tags Section -->
+                        <!-- Students Section -->
                         <div class="p-10px md:px-10 md:py-50px mb-30px bg-whiteColor dark:bg-whiteColor-dark shadow-accordion dark:shadow-accordion-dark rounded-5 max-h-137.5 overflow-auto">
                             <div class="mb-6 pb-5 border-b-2 border-borderColor dark:border-borderColor-dark flex items-center justify-between gap-2 flex-wrap">
                                 <h2 class="text-2xl font-bold text-blackColor dark:text-blackColor-dark">
-                                    Tags
+                                    Students
                                 </h2>
-                                <a href="../../course.html" class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8">See More...</a>
+                                <a href="../../students.html" class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8">See More...</a>
                             </div>
                             <div class="overflow-auto">
                                 <table class="w-full text-left text-nowrap">
                                     <thead class="text-sm md:text-base text-blackColor dark:text-blackColor-dark bg-lightGrey5 dark:bg-whiteColor-dark leading-1.8 md:leading-1.8">
                                         <tr>
-                                            <th class="px-5px py-10px md:px-5">Tag Name</th>
+                                            <th class="px-5px py-10px md:px-5">Student Name</th>
                                             <th class="px-5px py-10px md:px-5">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="text-size-13 md:text-base text-contentColor dark:text-contentColor-dark font-normal">
-                                        <!-- Example Tag -->
+                                        <!-- Example Student -->
                                         <tr class="leading-1.8 md:leading-1.8">
                                             <th class="px-5px py-10px md:px-5 font-normal">
-                                                <p>Tag 1</p>
-                                            </th>
-                                            <td class="px-5px py-10px md:px-5">
-                                                <button class="bg-transparent text-blue-500 px-4 py-2 rounded-full border-2 border-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300 mr-2">Edit</button>
-                                                <button class="bg-transparent text-red-500 px-4 py-2 rounded-full border-2 border-red-500 hover:bg-red-500 hover:text-white transition-all duration-300">Delete</button>
-                                            </td>
-                                        </tr>
-                                        <!-- Another Example Tag -->
-                                        <tr class="leading-1.8 md:leading-1.8 bg-lightGrey5 dark:bg-whiteColor-dark">
-                                            <th class="px-5px py-10px md:px-5 font-normal">
-                                                <p>Tag 2</p>
+                                                <p>Student 1</p>
                                             </th>
                                             <td class="px-5px py-10px md:px-5">
                                                 <button class="bg-transparent text-blue-500 px-4 py-2 rounded-full border-2 border-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300 mr-2">Edit</button>
@@ -399,6 +400,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>
