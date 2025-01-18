@@ -175,11 +175,11 @@
                                 WELCOME, MICLE OBEMA
                             </h5>
                             <ul>
-                            <li
+                                <li
                                     class="py-10px border-b border-borderColor dark:border-borderColor-dark">
                                     <a
                                         href="Admin/admindashboard.php"
-                                        class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
+                                        class="text-primaryColor hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
                                             height="24"
@@ -200,7 +200,7 @@
                                     class="py-10px border-b border-borderColor dark:border-borderColor-dark">
                                     <a
                                         href="profile.php"
-                                        class="text-primaryColor hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
+                                        class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
                                             height="24"
@@ -217,11 +217,11 @@
                                         </svg>
                                         My Profile</a>
                                 </li>
-                                
+
                                 <li
                                     class="py-10px border-b border-borderColor dark:border-borderColor-dark">
                                     <a
-                                        href="admin-course.html"
+                                        href="Admin/admincourses.php"
                                         class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -241,7 +241,28 @@
                                 <li
                                     class="py-10px border-b border-borderColor dark:border-borderColor-dark">
                                     <a
-                                        href="admin-reviews.html"
+                                        href="Admin/adminteachers.php"
+                                        class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            class="feather feather-user">
+                                            <path
+                                                d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="12" cy="7" r="4"></circle>
+                                        </svg>
+                                        Teachers & Students</a>
+                                </li>
+                                <li
+                                    class="py-10px border-b border-borderColor dark:border-borderColor-dark">
+                                    <a
+                                        href="Admin/admincategory.php"
                                         class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -258,7 +279,7 @@
                                         </svg>
                                         Category & Tags</a>
                                 </li>
-                                
+
                             </ul>
                             <!-- user -->
                             <h5
