@@ -1,11 +1,17 @@
-
 <?php
-    session_start();
-    
-if (!isset($_SESSION['role']) || ($_SESSION['role'] != 'Admin' ) ) {
+session_start();
+
+if (isset($_SESSION['role']) && ($_SESSION['role'] = 'Teacher')) {
+    header('Location:  ../dashboard.php');
+    exit();
+} elseif (isset($_SESSION['role']) && ($_SESSION['role'] = 'Student')) {
+    header('Location: ../dashboard.php');
+    exit();
+} elseif (!isset($_SESSION['role']) || ($_SESSION['role'] != 'Admin')) {
     header('Location: ../login.php');
     exit();
 }
+
 
 ?>
 
@@ -543,17 +549,17 @@ if (!isset($_SESSION['role']) || ($_SESSION['role'] != 'Admin' ) ) {
                         <!-- popular instructor and recent course area -->
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-30px">
                             <!-- popular instructor -->
-                           
+
                             <!-- Recent Course -->
-                           
+
                         </div>
                         <!-- Notice Board and Notifications area -->
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-30px">
                             <!-- Notice Board -->
 
-                            
+
                             <!-- notifications -->
-                           
+
                         </div>
 
                         <div
