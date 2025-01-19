@@ -1,9 +1,21 @@
 <?php
+session_start();
+
+
+if (isset($_SESSION['role']) && ($_SESSION['role'] = 'Admin')) {
+  header('Location: Admin/admindashboard.php');
+  exit();
+} elseif (isset($_SESSION['role']) && ($_SESSION['role'] = 'Teacher')) {
+  header('Location:  dashboard.php');
+  exit();
+} elseif (isset($_SESSION['role']) && ($_SESSION['role'] = 'Student')) {
+  header('Location: dashboard.php');
+  exit();
+}
+
 require_once "../db/connection.php";
 require_once "../classes/user.php";
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -194,14 +206,15 @@ require_once "../classes/user.php";
                   </p>
                 </div>
 
-                <form class="pt-25px" data-aos="fade-up">
+                <form class="pt-25px" method="POST" action="loginlogin.php">
                   <div class="mb-25px">
                     <label
-                      class="text-contentColor dark:text-contentColor-dark mb-10px block">Username or email</label>
+                      class="text-contentColor dark:text-contentColor-dark mb-10px block">name or email</label>
                     <input
                       type="text"
+                      name="name"
                       placeholder="Your name or email"
-                      class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded">
+                      class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded" required>
                   </div>
 
                   <div class="mb-25px">
@@ -209,8 +222,9 @@ require_once "../classes/user.php";
                       class="text-contentColor dark:text-contentColor-dark mb-10px block">Password</label>
                     <input
                       type="password"
+                      name="password"
                       placeholder="Password"
-                      class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded">
+                      class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded" required>
                   </div>
 
                   <div
@@ -236,27 +250,30 @@ require_once "../classes/user.php";
                       Log in
                     </button>
                   </div>
-                  <!-- other login -->
-                  <div>
-                    <p
-                      class="text-contentColor dark:text-contentColor-dark text-center relative mb-15px before:w-2/5 before:h-1px before:bg-borderColor4 dark:before:bg-borderColor2-dark before:absolute before:left-0 before:top-4 after:w-2/5 after:h-1px after:bg-borderColor4 dark:after:bg-borderColor2-dark after:absolute after:right-0 after:top-4">
-                      or Log-in with
-                    </p>
-                  </div>
-                  <div
-                    class="text-center flex gap-x-1 md:gap-x-15px lg:gap-x-25px gap-y-5 items-center justify-center flex-wrap">
-                    <button
-                      type="submit"
-                      class="text-size-15 text-whiteColor bg-primaryColor px-11 py-10px border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark">
-                      <i class="icofont-facebook"></i> Facebook
-                    </button>
-                    <button
-                      type="submit"
-                      class="text-size-15 text-whiteColor bg-primaryColor px-11 py-10px border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark">
-                      <i class="icofont-google-plus"></i> Google
-                    </button>
-                  </div>
                 </form>
+
+
+                <!-- other login -->
+                <div>
+                  <p
+                    class="text-contentColor dark:text-contentColor-dark text-center relative mb-15px before:w-2/5 before:h-1px before:bg-borderColor4 dark:before:bg-borderColor2-dark before:absolute before:left-0 before:top-4 after:w-2/5 after:h-1px after:bg-borderColor4 dark:after:bg-borderColor2-dark after:absolute after:right-0 after:top-4">
+                    or Log-in with
+                  </p>
+                </div>
+                <div
+                  class="text-center flex gap-x-1 md:gap-x-15px lg:gap-x-25px gap-y-5 items-center justify-center flex-wrap">
+                  <button
+                    type="submit"
+                    class="text-size-15 text-whiteColor bg-primaryColor px-11 py-10px border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark">
+                    <i class="icofont-facebook"></i> Facebook
+                  </button>
+                  <button
+                    type="submit"
+                    class="text-size-15 text-whiteColor bg-primaryColor px-11 py-10px border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark">
+                    <i class="icofont-google-plus"></i> Google
+                  </button>
+                </div>
+
               </div>
               <!-- sign up form-->
               <div
@@ -265,48 +282,28 @@ require_once "../classes/user.php";
                 <div class="text-center">
                   <h3
                     class="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
-                    Sing Up
+                    Sign Up
                   </h3>
                   <p
                     class="text-contentColor dark:text-contentColor-dark mb-15px">
                     Already have an account?
                     <a
-                      href="login.html"
+                      href="login.php"
                       class="hover:text-primaryColor relative after:absolute after:left-0 after:bottom-0.5 after:w-0 after:h-0.5 after:bg-primaryColor after:transition-all after:duration-300 hover:after:w-full">Log In</a>
                   </p>
                 </div>
 
-                <?php
-
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                  if (isset($_POST['name'], $_POST['email'], $_POST['password'], $_POST['role'])) {
-                    $name = $_POST['name'];
-                    $email = $_POST['email'];
-                    $password = $_POST['password'];
-                    $role = $_POST['role'];
-
-                    $db = (new Database())->connect();
-                    $user = new User($db);
-
-                    if ($user->register($name, $email, $password, $role)) {
-                      echo "Registration successful!";
-                    } else {
-                      echo "Registration failed!";
-                    }
-                  } else {
-                    echo "All fields are required!";
-                  }
-                }
-                ?>
-                <form class="pt-25px" data-aos="fade-up" method="POST" action="">
+                <form class="pt-25px" data-aos="fade-up" method="POST" action="./registerregister.php">
                   <div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-30px gap-y-25px mb-25px">
                     <div>
-                      <label class="text-contentColor dark:text-contentColor-dark mb-10px block">Name</label>
-                      <input type="text" name="name" placeholder="Name" class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded" required>
+                      <label class="text-contentColor dark:text-contentColor-dark mb-10px block">name</label>
+                      <input type="text" name="name" placeholder="name" class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded" required>
+                      <?php echo (isset($_SESSION['nameError']) ? $_SESSION['nameError'] : ''); ?>
                     </div>
                     <div>
                       <label class="text-contentColor dark:text-contentColor-dark mb-10px block">Email</label>
                       <input type="email" name="email" placeholder="Your Email" class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded" required>
+                      <?php echo (isset($_SESSION['emailError']) ? $_SESSION['emailError'] : ''); ?>
                     </div>
                   </div>
                   <div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-30px gap-y-25px mb-25px">
@@ -317,8 +314,8 @@ require_once "../classes/user.php";
                     <div>
                       <label class="text-contentColor dark:text-contentColor-dark mb-10px block">Role</label>
                       <select name="role" class="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded" required>
-                        <option value="Student">Student</option>
-                        <option value="Teacher">Teacher</option>
+                        <option value="student">Student</option>
+                        <option value="teacher">Teacher</option>
                       </select>
                     </div>
                   </div>
@@ -331,6 +328,7 @@ require_once "../classes/user.php";
                       Sign Up
                     </button>
                   </div>
+
                 </form>
               </div>
             </div>
