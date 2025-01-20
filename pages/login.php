@@ -6,7 +6,7 @@ if (isset($_SESSION['role']) && ($_SESSION['role'] == 'Admin' ) ) {
   header('Location: Admin/admindashboard.php');
   exit();
 }elseif (isset($_SESSION['role']) && ($_SESSION['role'] == 'Teacher' ) ) {
-  header('Location:  dashboard.php');
+  header('Location:  teacher/teacherdash.php');
   exit();
 } elseif (isset($_SESSION['role']) && ($_SESSION['role'] == 'Student' ) ) {
   header('Location: dashboard.php');
