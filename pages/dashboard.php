@@ -1,12 +1,6 @@
 <?php
 session_start();
-if (isset($_SESSION['role']) && ($_SESSION['role'] = 'Teacher')) {
-  header('Location:  teacher/teacherdash.php');
-  exit();
-} elseif (isset($_SESSION['role']) || ($_SESSION['role'] = 'Admin')) {
-  header('Location: Admin/admindashboard.php');
-  exit();
-}elseif (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Student') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Student') {
   header('Location: login.php');
   exit();
 }
@@ -126,7 +120,7 @@ if (isset($_SESSION['role']) && ($_SESSION['role'] = 'Teacher')) {
             <div class="text-whiteColor font-bold text-center sm:text-start">
               <h5 class="text-2xl leading-1.24 mb-5px">Hello
                 <?php
-
+                  echo $_SESSION['name'];
                 ?>
               </h5>
               <ul class="flex items-center gap-15px">
