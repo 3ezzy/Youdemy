@@ -189,7 +189,7 @@ if (!isset($_SESSION['role']) && ($_SESSION['role'] !== 'Teacher')) {
                                 <li
                                     class="py-10px border-b border-borderColor dark:border-borderColor-dark">
                                     <a
-                                        href="admindashboard.php"
+                                        href="teachdash.php"
                                         class="text-primaryColor hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -210,7 +210,7 @@ if (!isset($_SESSION['role']) && ($_SESSION['role'] !== 'Teacher')) {
                                 <li
                                     class="py-10px border-b border-borderColor dark:border-borderColor-dark">
                                     <a
-                                        href="profile.php"
+                                        href="teachprofile.php"
                                         class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -232,7 +232,7 @@ if (!isset($_SESSION['role']) && ($_SESSION['role'] !== 'Teacher')) {
                                 <li
                                     class="py-10px border-b border-borderColor dark:border-borderColor-dark">
                                     <a
-                                        href="admincourses.php"
+                                        href="teachcourses.php"
                                         class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -249,31 +249,11 @@ if (!isset($_SESSION['role']) && ($_SESSION['role'] !== 'Teacher')) {
                                         </svg>
                                         Courses</a>
                                 </li>
+                            
                                 <li
                                     class="py-10px border-b border-borderColor dark:border-borderColor-dark">
                                     <a
-                                        href="adminteachers.php"
-                                        class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="feather feather-user">
-                                            <path
-                                                d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                            <circle cx="12" cy="7" r="4"></circle>
-                                        </svg>
-                                        Teachers & Students</a>
-                                </li>
-                                <li
-                                    class="py-10px border-b border-borderColor dark:border-borderColor-dark">
-                                    <a
-                                        href="admincategory.php"
+                                        href="teachenrollments.php"
                                         class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -288,7 +268,7 @@ if (!isset($_SESSION['role']) && ($_SESSION['role'] !== 'Teacher')) {
                                             <polygon
                                                 points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                                         </svg>
-                                        Category & Tags</a>
+                                        Enrollments</a>
                                 </li>
 
                             </ul>
