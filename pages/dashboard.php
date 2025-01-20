@@ -1,6 +1,12 @@
 <?php
 session_start();
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Student') {
+if (isset($_SESSION['role']) && ($_SESSION['role'] = 'Teacher')) {
+  header('Location:  teacher/teacherdash.php');
+  exit();
+} elseif (isset($_SESSION['role']) || ($_SESSION['role'] = 'Admin')) {
+  header('Location: Admin/admindashboard.php');
+  exit();
+}elseif (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Student') {
   header('Location: login.php');
   exit();
 }

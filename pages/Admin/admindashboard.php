@@ -2,7 +2,7 @@
 session_start();
 
 if (isset($_SESSION['role']) && ($_SESSION['role'] = 'Teacher')) {
-    header('Location:  ../dashboard.php');
+    header('Location:  ../teacher/tacherdash.php');
     exit();
 } elseif (isset($_SESSION['role']) && ($_SESSION['role'] = 'Student')) {
     header('Location: ../dashboard.php');
