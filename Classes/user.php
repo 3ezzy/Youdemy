@@ -1,305 +1,171 @@
 <?php
-
-
-
-// Database connection (db_connection.php)
-
-class User
+abstract class User
 {
-    protected $id;
-    protected $name;
-    protected $email;
-    protected $password;
-    protected $role;
-    protected $db;
+  protected $id;
+  protected $first_name;
+  protected $last_name;
+  protected $email;
+  protected $password;
+  protected $role;
+  protected $is_active;
+  protected $is_suspended;
+  protected $created_at;
 
-    public function __construct($db, $id = null, $name = null, $email = null, $password = null, $role = null)
-    {
-        $this->db = $db;
-        $this->id = $id;
-        $this->name = $name;
-        $this->email = $email;
-        $this->password = $password;
-        $this->role = $role;
+  public function __tostring()
+  {
+    return "$this->first_name $this->last_name";
+  }
+
+  public function getId()
+  {
+    return $this->id;
+  }
+
+  public function getFullName()
+  {
+    return "$this->first_name $this->last_name";
+  }
+  public function getFirstName()
+  {
+    return $this->first_name;
+  }
+
+  public function getLastName()
+  {
+    return $this->last_name;
+  }
+
+  public function getEmail()
+  {
+    return $this->email;
+  }
+
+  public function getPassword()
+  {
+    return $this->password;
+  }
+
+  public function getRole()
+  {
+    return $this->role;
+  }
+
+  public function isActive()
+  {
+    return $this->is_active;
+  }
+
+  public function isSuspended()
+  {
+    return $this->is_suspended;
+  }
+
+  public function getCreatedAt()
+  {
+    return $this->created_at;
+  }
+
+  public function setFirstName($first_name)
+  {
+    $this->first_name = $first_name;
+  }
+
+  public function setLastName($last_name)
+  {
+    $this->last_name = $last_name;
+  }
+
+  //static methods
+  public static function getUserRole($db, $email)
+  {
+    $query = "SELECT role FROM users WHERE email = :email";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+    $stmt->execute();
+    $role = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $role['role'];
+  }
+
+  public static function getActiveUsers($db)
+  {
+    $query = "SELECT * FROM users WHERE is_active = 1 AND is_suspended = 0";
+    $stmt = $db->query($query);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public static function getSuspendedUsers($db)
+  {
+    $query = "SELECT * FROM users WHERE is_suspended = 1";
+    $stmt = $db->query($query);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public static function usersCount(PDO $db)
+  {
+    $query = "SELECT COUNT(*) FROM users";
+    $stmt = $db->query($query);
+    
+    return $stmt->fetchColumn();
+  }
+
+  //methods
+  public function loadUserByEmail($db)
+  {
+    $query = "SELECT * FROM users WHERE email = :email";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':email', $this->email, PDO::PARAM_STR);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $this->id = $user['id'];
+    $this->first_name = $user['first_name'];
+    $this->last_name = $user['last_name'];
+    $this->email = $user['email'];
+    $this->role = $user['role'];
+    $this->created_at = $user['created_at'];
+    $this->is_active = $user['is_active'];
+    $this->is_suspended = $user['is_suspended'];
+
+    return $user;
+  }
+
+  public function updateProfile($db)
+  {
+    $query = "UPDATE users SET first_name = :first_name, last_name = :last_name WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':first_name', $this->first_name, PDO::PARAM_STR);
+    $stmt->bindParam(':last_name', $this->last_name, PDO::PARAM_STR);
+    $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
+    if ($stmt->execute()) {
+      return true;
+    } else {
+      return false;
     }
-    public function register($name, $email, $password, $role)
-    {
-        // Check if name already exists
-        if (isset($name)) {
-            $stmt = $this->db->query("SELECT * FROM users WHERE name = '$name'");
-            $result = $stmt->fetch();
+  }
+  public function login($db)
+  {
+    $query = "SELECT * FROM users WHERE email = :email";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":email", $this->email, PDO::PARAM_STR);
+    $stmt->execute();
 
-            if ($result) {
-                $_SESSION['emailError'] = "Email already in use.";
-                $_SESSION['nameError'] = "name already in use.";
-            }
-        }
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Check if email already exists
-        if (isset($email)) {
-            $stmt = $this->db->query("SELECT * FROM users WHERE email = '$email'");
-            $result = $stmt->fetch();
-            if ($result) {
-                $_SESSION['emailError'] = "Email already in use.";
-                $_SESSION['nameError'] = "name already in use.";
-            }
-        }
-
-        if ($name !== $result['name'] && $email !== $result['email']) {
-            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-            $stmt = $this->db->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-            if ($stmt->execute([$name, $email, $hashedPassword, $role])) {
-                return true;
-            } else {
-                $_SESSION['error'] = "Registration failed.";
-                return false;
-            }
-        } else {
-            return false;
-        }
+    if (!$user || !password_verify($this->password, $user['password'])) {
+      return "Invalid email or password.";
     }
 
-    public function login($nameOrEmail, $password)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM users WHERE name = ? OR email = ?");
-            $stmt->execute([$nameOrEmail, $nameOrEmail]);
-            $user = $stmt->fetch();
+    return true;
+  }
 
-            if ($user && password_verify($password, $user['password'])) {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['name'] = $user['name'];
-                $_SESSION['role'] = $user['role'];
-                $_SESSION['email'] = $user['email'];
-                return true;
-            } else {
-                $_SESSION['loginError'] = "Invalid name, email, or password.";
-                return false;
-            }
-        } catch (PDOException $e) {
-            $_SESSION['loginError'] = "Database error: " . $e->getMessage();
-            return false;
-        }
-    }
+  public function logout()
+  {
+    session_unset();
+    session_destroy();
+    return true;
+  }
 
-    public static function logout()
-    {
-        session_unset();
-        session_destroy();
-    }
-
-    public function getRole()
-    {
-        return $_SESSION['role'] ?? null;
-    }
-
-    public function isAuthenticated()
-    {
-        return isset($_SESSION['user_id']);
-    }
-
-    public function isAdmin()
-    {
-        return $this->getRole() === 'admin';
-    }
-
-    public function isTeacher()
-    {
-        return $this->getRole() === 'teacher';
-    }
-
-    public function isStudent()
-    {
-        return $this->getRole() === 'student';
-    }
 }
 
-class Student extends User
-{
-    private $courses = [];
-
-    public function __construct($db, $id = null, $name = null, $email = null, $password = null, $role = 'student')
-    {
-        parent::__construct($db, $id, $name, $email, $password, $role);
-    }
-
-    public function enrollCourse($courseId)
-    {
-        $stmt = $this->db->prepare("INSERT INTO course_enrollments (course_id, student_id) VALUES (?, ?)");
-        return $stmt->execute([$courseId, $_SESSION['user_id']]);
-    }
-
-    public function getCourses()
-    {
-        $stmt = $this->db->prepare("SELECT c.* FROM courses c JOIN course_enrollments ce ON c.id = ce.course_id WHERE ce.student_id = ?");
-        $stmt->execute([$_SESSION['user_id']]);
-        return $stmt->fetchAll();
-    }
-
-    public function viewCourses()
-    {
-        $stmt = $this->db->query("SELECT * FROM courses");
-        return $stmt->fetchAll();
-    }
-
-    public function searchCourse($keyword)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM courses WHERE title LIKE ? OR description LIKE ?");
-        $stmt->execute(['%' . $keyword . '%', '%' . $keyword . '%']);
-        return $stmt->fetchAll();
-    }
-
-    public function joinCourse($courseId)
-    {
-        $stmt = $this->db->prepare("INSERT INTO course_enrollments (course_id, student_id) VALUES (?, ?)");
-        $stmt->execute([$courseId, $_SESSION['user_id']]);
-    }
-
-    public function viewMyCourses()
-    {
-        $stmt = $this->db->prepare("SELECT c.* FROM courses c JOIN course_enrollments ce ON c.id = ce.course_id WHERE ce.student_id = ?");
-        $stmt->execute([$_SESSION['user_id']]);
-        return $stmt->fetchAll();
-    }
-}
-
-class Teacher extends User
-{
-    public function __construct($db, $id = null, $name = null, $email = null, $password = null, $role = 'teacher')
-    {
-        parent::__construct($db, $id, $name, $email, $password, $role);
-    }
-
-    public function addCourse($title, $description, $content, $categoryId)
-    {
-        $stmt = $this->db->prepare("INSERT INTO courses (title, description, content, category_id, teacher_id) VALUES (?, ?, ?, ?, ?)");
-        return $stmt->execute([$title, $description, $content, $categoryId, $_SESSION['user_id']]);
-    }
-
-    public function getCourses()
-    {
-        $stmt = $this->db->prepare("SELECT * FROM courses WHERE teacher_id = ?");
-        $stmt->execute([$_SESSION['user_id']]);
-        return $stmt->fetchAll();
-    }
-
-    public function getCourseStatistics()
-    {
-        $stmt = $this->db->prepare("SELECT c.id, c.title, COUNT(ce.id) as student_count FROM courses c LEFT JOIN course_enrollments ce ON c.id = ce.course_id WHERE c.teacher_id = ? GROUP BY c.id");
-        $stmt->execute([$_SESSION['user_id']]);
-        return $stmt->fetchAll();
-    }
-}
-
-class Admin extends User
-{
-    public function __construct($db, $id = null, $name = null, $email = null, $password = null, $role = 'admin')
-    {
-        parent::__construct($db, $id, $name, $email, $password, $role);
-    }
-
-    public function validateTeacher($teacherId)
-    {
-        $stmt = $this->db->prepare("UPDATE users SET status = 'active' WHERE id = ? AND role = 'teacher'");
-        return $stmt->execute([$teacherId]);
-    }
-
-    public function manageUser($userId, $action)
-    {
-        $status = $action === 'activate' ? 'active' : ($action === 'suspend' ? 'suspended' : 'deleted');
-        if ($action === 'delete') {
-            $stmt = $this->db->prepare("DELETE FROM users WHERE id = ?");
-            return $stmt->execute([$userId]);
-        } else {
-            $stmt = $this->db->prepare("UPDATE users SET status = ? WHERE id = ?");
-            return $stmt->execute([$status, $userId]);
-        }
-    }
-
-    public function getStatistics()
-    {
-        $stmt = $this->db->query("SELECT 
-            (SELECT COUNT(*) FROM courses) as total_courses,
-            (SELECT COUNT(*) FROM users WHERE role = 'teacher') as total_teachers,
-            (SELECT COUNT(*) FROM users WHERE role = 'student') as total_students,
-            (SELECT title FROM courses ORDER BY (SELECT COUNT(*) FROM course_enrollments WHERE course_id = courses.id) DESC LIMIT 1) as most_popular_course,
-            (SELECT name FROM users WHERE role = 'teacher' ORDER BY (SELECT COUNT(*) FROM courses WHERE teacher_id = users.id) DESC LIMIT 3) as top_teachers
-        ");
-        return $stmt->fetch();
-    }
-}
-
-class Tag
-{
-    private $db;
-
-    public function __construct($db)
-    {
-        $this->db = $db;
-    }
-
-    public function addTag($name)
-    {
-        $stmt = $this->db->prepare("INSERT INTO tags (name) VALUES (?)");
-        return $stmt->execute([$name]);
-    }
-
-    public function getTags()
-    {
-        $stmt = $this->db->query("SELECT * FROM tags");
-        return $stmt->fetchAll();
-    }
-}
-
-class Category
-{
-    private $db;
-
-    public function __construct($db)
-    {
-        $this->db = $db;
-    }
-
-    public function addCategory($name)
-    {
-        $stmt = $this->db->prepare("INSERT INTO categories (name) VALUES (?)");
-        return $stmt->execute([$name]);
-    }
-
-    public function getCategories()
-    {
-        $stmt = $this->db->query("SELECT * FROM categories");
-        return $stmt->fetchAll();
-    }
-}
-
-class Course
-{
-    private $db;
-
-    public function __construct($db)
-    {
-        $this->db = $db;
-    }
-
-    public function getCourse($courseId)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM courses WHERE id = ?");
-        $stmt->execute([$courseId]);
-        return $stmt->fetch();
-    }
-
-    public function getCourses($limit, $offset)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM courses LIMIT ? OFFSET ?");
-        $stmt->execute([$limit, $offset]);
-        return $stmt->fetchAll();
-    }
-
-    public function searchCourses($keyword)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM courses WHERE title LIKE ? OR description LIKE ?");
-        $stmt->execute(['%' . $keyword . '%', '%' . $keyword . '%']);
-        return $stmt->fetchAll();
-    }
-}
+?>

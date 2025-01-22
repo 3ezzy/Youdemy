@@ -1,742 +1,739 @@
 <?php
 session_start();
-if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'Admin')) {
-    header('Location: ../login.php');
+require_once '../../config/database.php';
+require_once '../../classes/admin.php';
+require_once '../../classes/teacher.php';
+require_once '../../classes/student.php';
+require_once '../../classes/user.php';
+require_once '../../classes/course.php';
+require_once '../../classes/videoCourse.php';
+require_once '../../classes/documentCourse.php';
+require_once '../../classes/enrollment.php';
+require_once '../../classes/category.php';
+require_once '../../classes/tag.php';
+
+
+if (isset($_SESSION['user'])) {
+  $user = unserialize($_SESSION['user']);
+  if (!($user instanceof Admin)) {
+    header('Location: ../../index.php');
     exit();
+  }
+} else {
+  header('Location: ../auth/login.php');
+  exit();
+}
+
+if (isset($_GET['search']) || isset($_GET['role'])) {
+
+  $search = trim($_GET['search']) ?? '';
+  $role = trim($_GET['role']) ?? '';
+  $acUsers = User::getActiveUsers($PDOConn);
+  $activeUsers = $user->filterActiveUsers($acUsers, $search, $role);
+} else {
+  $activeUsers = User::getActiveUsers($PDOConn);
 }
 
 
-?>
+$suspendedUsers = User::getSuspendedUsers($PDOConn);
+$pendingTeachers = Teacher::getPendingTeachers($PDOConn);
 
+$tags = Tag::getAllTags($PDOConn);
+$categories = Category::getAllCategories($PDOConn);
+
+
+$totalUsers = User::usersCount($PDOConn);
+$totalAdmins = Admin::adminsCount($PDOConn);
+$totalTeachers = Teacher::teachersCount($PDOConn);
+$totalStusents = Student::studentsCount($PDOConn);
+
+$totalCourses = Course::coursesCount($PDOConn);
+$totalDocumtns = DocumentCourse::documentCoursesCount($PDOConn);
+$totalVideos = videoCourse::videoCoursesCount($PDOConn);
+$totalEnrollments = Enrollment::enrollmentsCount($PDOConn);
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- Mirrored from html.themewin.com/edurcok-preview-tailwind/edurock/pages/dashboards/admin-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 12 Jan 2025 03:29:04 GMT -->
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Edurock - Education LMS Template</title>
-    <link
-        rel="shortcut icon"
-        type="image/x-icon"
-        href="../../assets/images/favicon.ico">
-    <!-- link stylesheet -->
-    <link rel="stylesheet" href="../../assets/css/icofont.min.css">
-    <link rel="stylesheet" href="../../assets/css/popup.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Youdemy - Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <link rel="stylesheet" href="../../assets/css/swiper-bundle.min.css">
-    <link rel="stylesheet" href="../../assets/css/video-modal.css">
-    <link rel="stylesheet" href="../../assets/css/aos.css">
-    <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 
-<body
-    class="relative font-inter font-normal text-base leading-[1.8] bg-bodyBg dark:bg-bodyBg-dark">
-    <!-- preloader -->
-    <div
-        class="preloader flex fixed top-0 left-0 h-screen w-full items-center justify-center z-xxl bg-whiteColor opacity-100 visible transition-all duration-700">
-        <!-- spinner -->
-        <div
-            class="w-90px h-90px border-5px border-t-blue border-r-blue border-b-blue-light border-l-blue-light rounded-full animate-spin-infinit"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
-            <img src="../../assets/images/pre.png" alt="" class="h-10 w-10 block">
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <header class="w-full">
+    <div class="bg-white backdrop-blur-md bg-opacity-90">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="flex justify-between h-20">
+          <div class="flex items-center">
+            <div class="text-2xl font-bold bg-gradient-to-r from-[#000957] to-[#344CB7] text-transparent bg-clip-text">
+              Youdemy
+            </div>
+          </div>
+
+          <nav class="flex items-center">
+            <ul class="hidden md:flex items-center space-x-6">
+              <li>
+                <a href="../../index.php"
+                  class="text-gray-800 hover:text-orange-600 transition-colors duration-300">Home</a>
+              </li>
+              <li>
+                <a href="../courses/courses.php"
+                  class="text-gray-600 hover:text-orange-600 transition-colors duration-300">Courses</a>
+              </li>
+              <li>
+                <a href="../contact/contact.php"
+                  class="text-gray-600 hover:text-orange-600 transition-colors duration-300">Contact</a>
+              </li>
+              <ul class="flex items-center space-x-4">
+                <li class="relative">
+                  <button id="dropdownButton"
+                    class="flex items-center space-x-2 bg-[#344CB7] text-white px-4 py-2 rounded-full hover:bg-[#577BC1] transition-colors duration-300">
+                    <i class="fas fa-user-circle text-lg"></i>
+                    <span><?= $user ?></span>
+                    <i class="fas fa-chevron-down text-sm"></i>
+                  </button>
+                  <div id="dropdownMenu"
+                    class="hidden w-full absolute mt-2 bg-white rounded-xl shadow-lg py-2 border border-gray-100">
+                    <a href="../profile/profile.php"
+                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#344CB7] hover:text-white transition-colors duration-300">Profile</a>
+                    <a href="#"
+                      class="block px-4 py-2 text-sm text-gray-700 font-medium hover:bg-[#344CB7] hover:text-white transition-colors duration-300">Admin
+                      Dashboard</a>
+                    <a href="../auth/process/logout.php"
+                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#344CB7] hover:text-white transition-colors duration-300">Logout</a>
+                  </div>
+                </li>
+              </ul>
+            </ul>
+          </nav>
         </div>
+      </div>
     </div>
-    <!-- theme fixed shadow -->
-    <div>
-        <div class="fixed-shadow left-[-250px]"></div>
-        <div class="fixed-shadow right-[-250px]"></div>
-    </div>
+  </header>
 
-    <!-- theme controller -->
-    <div
-        class="fixed top-[100px] 2xl:top-[300px] transition-all duration-300 right-[-50px] hover:right-0 z-xl">
-        <button
-            class="theme-controller w-90px h-10 bg-primaryColor dark:bg-whiteColor-dark rounded-l-lg2 text-whiteColor px-10px flex items-center dark:shadow-theme-controller">
-            <!-- dark -->
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="mr-10px w-5 block dark:hidden"
-                viewBox="0 0 512 512">
-                <path
-                    d="M160 136c0-30.62 4.51-61.61 16-88C99.57 81.27 48 159.32 48 248c0 119.29 96.71 216 216 216 88.68 0 166.73-51.57 200-128-26.39 11.49-57.38 16-88 16-119.29 0-216-96.71-216-216z"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="32"></path>
-            </svg>
-            <span class="text-base block dark:hidden">Dark</span>
-            <!-- light -->
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="hidden mr-10px w-5 dark:block"
-                viewBox="0 0 512 512">
-                <path
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-miterlimit="10"
-                    stroke-width="32"
-                    d="M256 48v48M256 416v48M403.08 108.92l-33.94 33.94M142.86 369.14l-33.94 33.94M464 256h-48M96 256H48M403.08 403.08l-33.94-33.94M142.86 142.86l-33.94-33.94"></path>
-                <circle
-                    cx="256"
-                    cy="256"
-                    r="80"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-miterlimit="10"
-                    stroke-width="32"></circle>
-            </svg>
-            <span class="text-base hidden dark:block">Light</span>
+  <main class="flex-grow py-12 px-6">
+    <div class="max-w-7xl mx-auto">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+        <p class="text-gray-600 mt-2">Manage users, content, and platform settings</p>
+      </div>
+
+      <!-- error/success msg -->
+      <?php if (isset($_SESSION['adminActionError'])) { ?>
+        <div class="message bg-red-50 border border-red-300 p-4 rounded-lg mb-6 flex justify-between items-center">
+          <div class="flex items-center">
+            <i class="fas fa-times-circle text-red-500 text-xl mr-3"></i>
+            <p class="text-red-700 font-medium"><?= htmlspecialchars($_SESSION['adminActionError']) ?></p>
+          </div>
+          <button class="dismiss-button text-red-600 hover:underline focus:outline-none">
+            Dismiss
+          </button>
+        </div>
+        <?php unset($_SESSION['adminActionError']); ?>
+      <?php } ?>
+
+      <?php if (isset($_SESSION['adminActionSuccess'])) { ?>
+        <div class="message bg-green-50 border border-green-300 p-4 rounded-lg mb-6 flex justify-between items-center">
+          <div class="flex items-center">
+            <i class="fas fa-check-circle text-green-500 text-xl mr-3"></i>
+            <p class="text-green-700 font-medium"><?= htmlspecialchars($_SESSION['adminActionSuccess']) ?></p>
+          </div>
+          <button class="dismiss-button text-green-600 hover:underline focus:outline-none">
+            Dismiss
+          </button>
+        </div>
+        <?php unset($_SESSION['adminActionSuccess']); ?>
+      <?php } ?>
+
+
+
+      <!-- Dashboard Navigation -->
+      <div class="flex flex-wrap">
+        <button data-section="activeUsers"
+          class="dashboard-nav-btn flex items-center space-x-2 px-6 py-4 text-[#344CB7] border-b-2 border-[#344CB7] font-medium">
+          <i class="fas fa-users"></i>
+          <span>Active Users</span>
         </button>
-    </div>
-    <!-- scroll up button -->
-    <div>
-        <button
-            class="scroll-up w-50px h-50px leading-50px text-center text-primaryColor bg-white hover:text-whiteColor hover:bg-primaryColor rounded-full fixed right-5 bottom-[60px] shadow-scroll-up z-medium text-xl dark:text-whiteColor dark:bg-primaryColor dark:hover:text-whiteColor-dark hidden">
-            <i class="icofont-rounded-up"></i>
+        <button data-section="suspendedUsers"
+          class="dashboard-nav-btn flex items-center space-x-2 px-6 py-4 text-gray-600 hover:text-[#344CB7] font-medium">
+          <i class="fas fa-user-slash"></i>
+          <span>Suspended Users</span>
         </button>
+        <button data-section="teachers"
+          class="dashboard-nav-btn flex items-center space-x-2 px-6 py-4 text-gray-600 hover:text-[#344CB7] font-medium">
+          <i class="fas fa-chalkboard-teacher"></i>
+          <span>Approve Teachers</span>
+        </button>
+        <button data-section="categories"
+          class="dashboard-nav-btn flex items-center space-x-2 px-6 py-4 text-gray-600 hover:text-[#344CB7] font-medium">
+          <i class="fas fa-folder"></i>
+          <span>Categories</span>
+        </button>
+        <button data-section="tags"
+          class="dashboard-nav-btn flex items-center space-x-2 px-6 py-4 text-gray-600 hover:text-[#344CB7] font-medium">
+          <i class="fas fa-tags"></i>
+          <span>Tags</span>
+        </button>
+        <button data-section="statistics"
+          class="dashboard-nav-btn flex items-center space-x-2 px-6 py-4 text-gray-600 hover:text-[#344CB7] font-medium">
+          <i class="fas fa-chart-bar"></i>
+          <span>Statistics</span>
+        </button>
+      </div>
+
+      <!-- active users -->
+      <div id="activeUsers"
+        class="contentSection flex flex-col bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="mb-6 w-full lg:w-3/4 mx-auto">
+          <form action="" method="GET" id="filterForm"
+            class="grid grid-cols-1 md:grid-cols-[60%,30%] justify-between gap-4">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-400"></i>
+              </div>
+              <input type="text" name="search" placeholder="Search by name..."
+                class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+            </div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fas fa-filter text-gray-400"></i>
+              </div>
+              <select name="role" id="roleInput"
+                class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none">
+                <option value="" <?= (isset($_GET['role']) && $_GET['role'] === '') ? 'selected' : '' ?>>All Roles</option>
+                <option value="admin" <?= (isset($_GET['role']) && $_GET['role'] === 'admin') ? 'selected' : '' ?>>Admin
+                </option>
+                <option value="teacher" <?= (isset($_GET['role']) && $_GET['role'] === 'teacher') ? 'selected' : '' ?>>
+                  Teacher</option>
+                <option value="student" <?= (isset($_GET['role']) && $_GET['role'] === 'student') ? 'selected' : '' ?>>
+                  Student</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <i class="fas fa-chevron-down text-gray-400"></i>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Active Users Section -->
+        <div class="overflow-x-auto mx-auto bg-white shadow-md rounded-lg w-full max-w-4xl">
+          <?php if (empty($activeUsers)): ?>
+            <div class="text-center py-12">
+              <i class="fas fa-users text-gray-400 text-5xl mb-4"></i>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">No Result Found</h3>
+              <p class="text-gray-500">There are no active users that match </p>
+            </div>
+          <?php else: ?>
+            <table class="min-w-full table-auto">
+
+              <div class="overflow-x-auto mx-auto bg-white shadow-md rounded-lg w-full lg:w-3/4">
+                <table class="min-w-full table-auto">
+                  <thead class="bg-orange-100 text-gray-800">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Full Name
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Email</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Joined</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Role</th>
+                      <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Suspend
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200">
+                    <?php foreach ($activeUsers as $user): ?>
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                          <?= htmlspecialchars("{$user['first_name']}  {$user['last_name']}") ?>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                          <?= htmlspecialchars($user['email']) ?>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                          <?= date('F j, Y', strtotime($user['created_at'])) ?>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                          <?= htmlspecialchars(ucfirst($user['role'])) ?>
+                          <?php if ($user['role'] === 'student'): ?>
+                            <i class="fas fa-user-graduate text-blue-500"></i>
+                          <?php elseif ($user['role'] === 'teacher'): ?>
+                            <i class="fas fa-chalkboard-teacher text-green-500"></i>
+                          <?php elseif ($user['role'] === 'admin'): ?>
+                            <i class="fas fa-user-shield text-red-500"></i>
+                          <?php endif; ?>
+                        </td>
+                        <td class="px-6 py-4 text-center text-sm font-medium">
+                          <?php if ($user['role'] !== 'admin'): ?>
+                            <div class="flex justify-center gap-4">
+                              <form action="process/suspendUser.php" method="POST" class="inline">
+                                <input type="hidden" name="userId" value="<?= htmlspecialchars($user['id']) ?>">
+                                <button type="submit"
+                                  class="text-yellow-600 hover:text-yellow-800 transform hover:scale-110 transition duration-200">
+                                  <i class="fas fa-ban"></i>
+                                </button>
+                              </form>
+                            </div>
+                          <?php else: ?>
+                            <span class="text-gray-400">No Actions</span>
+                          <?php endif; ?>
+                        </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+              </div>
+            </table>
+          <?php endif; ?>
+        </div>
+      </div>
+
+
+      <!-- Suspended Users -->
+      <div id="suspendedUsers" class="contentSection hidden bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="overflow-x-auto mx-auto bg-white shadow-md rounded-lg w-full max-w-4xl">
+          <?php if (empty($suspendedUsers)): ?>
+            <div class="text-center py-12">
+              <i class="fas fa-user-shield text-gray-400 text-5xl mb-4"></i>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">No Suspended Users</h3>
+              <p class="text-gray-500">All users are currently active on the platform.</p>
+            </div>
+          <?php else: ?>
+            <table class="min-w-full table-auto">
+              <thead class="bg-red-100 text-gray-800">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Full Name
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Email</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Joined</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Role</th>
+                  <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <?php foreach ($suspendedUsers as $user): ?>
+                  <?php if ($user['role'] !== 'admin'): ?>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4 text-sm text-gray-900">
+                        <?= htmlspecialchars("{$user['first_name']} {$user['last_name']}") ?>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-900">
+                        <?= htmlspecialchars($user['email']) ?>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-900">
+                        <?= date('F j, Y', strtotime($user['created_at'])) ?>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-900">
+                        <?= htmlspecialchars(ucfirst($user['role'])) ?>
+                        <?php if ($user['role'] === 'student'): ?>
+                          <i class="fas fa-user-graduate text-blue-500"></i>
+                        <?php elseif ($user['role'] === 'teacher'): ?>
+                          <i class="fas fa-chalkboard-teacher text-green-500"></i>
+                        <?php endif; ?>
+                      </td>
+                      <td class="px-6 py-4 text-center text-sm font-medium">
+                        <div class="flex justify-center gap-4">
+                          <form action="process/unsuspendUser.php" method="POST" class="inline">
+                            <input type="hidden" name="userId" value="<?= htmlspecialchars($user['id']) ?>">
+                            <button type="submit"
+                              class="text-green-600 hover:text-green-800 transform hover:scale-110 transition duration-200">
+                              <i class="fas fa-check"></i>
+                            </button>
+                          </form>
+                          <form action="process/deleteUser.php" method="POST" class="deleteForm inline">
+                            <input type="hidden" name="userId" value="<?= htmlspecialchars($user['id']) ?>">
+                            <button type="submit"
+                              class="text-red-600 hover:text-red-800 transform hover:rotate-12 transition duration-200">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  <?php endif; ?>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <!-- teacher section -->
+      <div id="teachers" class="contentSection hidden bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="overflow-x-auto mx-auto bg-white shadow-md rounded-lg w-full md:w-3/4">
+          <?php if (empty($pendingTeachers)): ?>
+            <div class="text-center py-12">
+              <i class="fas fa-chalkboard-teacher text-gray-400 text-5xl mb-4"></i>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">No Pending Applications</h3>
+              <p class="text-gray-500">There are currently no teachers waiting for approval.</p>
+            </div>
+          <?php else: ?>
+            <table class="min-w-full table-auto">
+              <thead class="bg-orange-100 text-gray-800">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Full Name
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Email</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Joined</th>
+                  <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <?php foreach ($pendingTeachers as $teacher): ?>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                      <?= htmlspecialchars("{$teacher['first_name']} {$teacher['last_name']}") ?>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900"><?= htmlspecialchars($teacher['email']) ?>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                      <?= date('F j, Y', strtotime($teacher['created_at'])) ?>
+                    </td>
+                    <td class="px-6 py-4 text-center text-sm font-medium">
+                      <form action="process/approveTeacher.php" method="POST" class="inline">
+                        <input type="hidden" name="teacherId" value="<?= htmlspecialchars($teacher['id']) ?>">
+                        <button type="submit"
+                          class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                          <i class="fas fa-check-circle"></i>
+                          <span class="inline-block">Approve</span>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          <?php endif; ?>
+        </div>
+      </div>
+
+
+      <!-- category section -->
+      <div id="categories"
+        class="contentSection hidden bg-white rounded-xl shadow-sm p-6 border flex-col border-gray-100">
+
+        <div class="max-w-2xl mx-auto mb-8">
+          <form action="process/addCategory.php" method="POST" class="flex gap-4 items-center">
+            <div class="flex-grow max-w-xs">
+              <input type="text" name="categoryName" placeholder="Enter category name" required
+                class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
+            </div>
+            <div class="flex-grow max-w-xs">
+              <input type="text" name="categoryDescription" placeholder="Enter category description" required
+                class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
+            </div>
+            <button type="submit"
+              class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2">
+              <i class="fas fa-plus"></i>
+              <span>Add Category</span>
+            </button>
+          </form>
+        </div>
+
+        <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+          <table class="min-w-full table-auto">
+            <thead class="bg-orange-100 text-gray-800">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Category
+                  Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Description
+                </th>
+                <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <?php foreach ($categories as $category): ?>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 text-sm text-gray-900"><?= htmlspecialchars($category['name']) ?>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">
+                    <?= htmlspecialchars($category['description']) ?>
+                  </td>
+                  <td class="px-6 py-4 text-right text-sm font-medium">
+                    <div class="flex justify-end gap-4">
+                      <button data-category-id="<?= htmlspecialchars($category['id']) ?>"
+                        data-category-name="<?= htmlspecialchars($category['name']) ?>"
+                        data-category-description="<?= htmlspecialchars($category['description']) ?>"
+                        class="edit-category-btn text-blue-600 hover:text-blue-800 transform hover:scale-110 transition duration-200">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <form action="process/deleteCategory.php" method="POST" class="deleteForm inline">
+                        <input type="hidden" name="categoryId" value="<?= htmlspecialchars($category['id']) ?>">
+                        <button type="submit"
+                          class="text-red-600 hover:text-red-800 transform hover:rotate-12 transition duration-200">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="editCategoryPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4">
+          <div class="bg-white rounded-lg shadow-xl w-full max-w-md relative">
+            <div class="p-6">
+              <button type="button" id="closeEditCategoryPopup"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-500 transition-colors">
+                <i class="fas fa-times"></i>
+              </button>
+              <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Category</h3>
+              <form id="editCategoryForm" action="process/editCategory.php" method="POST">
+                <input type="hidden" name="categoryId" id="editCategoryId">
+                <div class="mb-4">
+                  <input type="text" name="categoryName" id="editCategoryName" required
+                    class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
+                </div>
+                <div class="mb-4">
+                  <input type="text" name="categoryDescription" id="editCategoryDescription" required
+                    class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
+                </div>
+                <div class="flex justify-end">
+                  <button type="submit"
+                    class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors">
+                    Update Category
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- tags section -->
+      <div id="tags" class="contentSection hidden bg-white rounded-xl shadow-sm p-6 border flex-col border-gray-100">
+
+        <div class="max-w-2xl mx-auto mb-8">
+          <form action="process/addTag.php" method="POST" class="flex gap-4 items-center">
+            <div class="flex-grow max-w-xs">
+              <input type="text" name="tagName" placeholder="Enter tag name" required
+                class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
+            </div>
+            <button type="submit"
+              class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2">
+              <i class="fas fa-plus"></i>
+              <span>Add Tag</span>
+            </button>
+          </form>
+        </div>
+
+        <div class="w-full md:w-1/2 mx-auto overflow-x-auto bg-white shadow-md rounded-lg">
+          <table class="min-w-full table-auto">
+            <thead class="bg-orange-100 text-gray-800">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Tag Name
+                </th>
+                <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <?php foreach ($tags as $tag): ?>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 text-sm text-gray-900"><?= htmlspecialchars($tag['name']) ?></td>
+                  <td class="px-6 py-4 text-right text-sm font-medium">
+                    <div class="flex justify-end gap-4">
+                      <button data-tag-id="<?= htmlspecialchars($tag['id']) ?>"
+                        data-tag-name="<?= htmlspecialchars($tag['name']) ?>"
+                        class="edit-tag-btn text-blue-600 hover:text-blue-800 transform hover:scale-110 transition duration-200">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <form action="process/deleteTag.php" method="POST" class="deleteForm inline">
+                        <input type="hidden" name="tagId" value="<?= htmlspecialchars($tag['id']) ?>">
+                        <button type="submit"
+                          class="text-red-600 hover:text-red-800 transform hover:rotate-12 transition duration-200">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="editTagPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4">
+          <div class="bg-white rounded-lg shadow-xl w-full max-w-md relative">
+            <div class="p-6">
+              <button type="button" id="closeEditTagPopup"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-500 transition-colors">
+                <i class="fas fa-times"></i>
+              </button>
+              <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Tag</h3>
+              <form id="editTagForm" action="process/editTag.php" method="POST">
+                <input type="hidden" name="tagId" id="editTagId">
+                <div class="mb-4">
+                  <input type="text" name="tagName" id="editTagName" required
+                    class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all">
+                </div>
+                <div class="flex justify-end">
+                  <button type="submit"
+                    class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors">
+                    Update Tag
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div id="statistics" class="contentSection hidden bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="w-full text-center text-gray-500">
+          <i class="fas fa-chart-bar text-4xl mb-4"></i>
+          <!-- <p>Statistics Section - Content Coming Soon</p> -->
+          <div class="mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Users Overview</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="bg-gradient-to-br from-orange-50 to-white p-6 rounded-xl border border-orange-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="text-orange-500">
+                    <i class="fas fa-users text-2xl"></i>
+                  </div>
+                  <span class="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-1 rounded-full">Total
+                    Users</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-1"><?= $totalUsers ?></div>
+                <p class="text-sm text-gray-500">Registered members</p>
+              </div>
+              <div class="bg-gradient-to-br from-red-50 to-white p-6 rounded-xl border border-red-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="text-red-500">
+                    <i class="fas fa-user-shield text-2xl"></i>
+                  </div>
+                  <span class="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded-full">Admins</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-1"><?= $totalAdmins ?></div>
+                <p class="text-sm text-gray-500">Platform administrators</p>
+              </div>
+              <div class="bg-gradient-to-br from-green-50 to-white p-6 rounded-xl border border-green-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="text-green-500">
+                    <i class="fas fa-chalkboard-teacher text-2xl"></i>
+                  </div>
+                  <span class="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">Teachers</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-1"><?= $totalTeachers ?></div>
+                <p class="text-sm text-gray-500">Active instructors</p>
+              </div>
+              <div class="bg-gradient-to-br from-blue-50 to-white p-6 rounded-xl border border-blue-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="text-blue-500">
+                    <i class="fas fa-user-graduate text-2xl"></i>
+                  </div>
+                  <span class="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Students</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-1"><?= $totalStusents ?></div>
+                <p class="text-sm text-gray-500">Registered learners</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Content Overview</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="bg-gradient-to-br from-purple-50 to-white p-6 rounded-xl border border-purple-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="text-purple-500">
+                    <i class="fas fa-graduation-cap text-2xl"></i>
+                  </div>
+                  <span class="text-xs font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded-full">Courses</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-1"><?= $totalCourses ?></div>
+                <p class="text-sm text-gray-500">Available courses</p>
+              </div>
+              <div class="bg-gradient-to-br from-yellow-50 to-white p-6 rounded-xl border border-yellow-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="text-yellow-500">
+                    <i class="fas fa-file-alt text-2xl"></i>
+                  </div>
+                  <span class="text-xs font-medium text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">Documents</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-1"><?= $totalDocumtns ?></div>
+                <p class="text-sm text-gray-500">Document Lessons</p>
+              </div>
+              <div class="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-xl border border-indigo-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="text-indigo-500">
+                    <i class="fas fa-video text-2xl"></i>
+                  </div>
+                  <span class="text-xs font-medium text-indigo-600 bg-indigo-100 px-2 py-1 rounded-full">Videos</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-1"><?= $totalVideos ?></div>
+                <p class="text-sm text-gray-500">Video lessons</p>
+              </div>
+              <div class="bg-gradient-to-br from-pink-50 to-white p-6 rounded-xl border border-pink-100">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="text-pink-500">
+                    <i class="fas fa-user-plus text-2xl"></i>
+                  </div>
+                  <span class="text-xs font-medium text-pink-600 bg-pink-100 px-2 py-1 rounded-full">Enrollments</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-1"><?= $totalEnrollments ?></div>
+                <p class="text-sm text-gray-500">Total enrollments</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </main>
+
+  <!-- <footer class="bg-gray-900 text-white mt-auto">
+    <div class="container mx-auto px-4 py-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+        <div>
+          <div class="text-2xl font-bold text-orange-500 mb-2">Youdemy</div>
+          <p class="text-gray-400 text-sm">Share your knowledge with the world</p>
+        </div>
+        <div class="flex justify-center">
+          <ul class="space-y-1 text-center">
+            <li><a href="../../index.php" class="text-gray-400 hover:text-white transition text-sm">Home</a>
+            </li>
+            <li><a href="../courses/courses.php" class="text-gray-400 hover:text-white transition text-sm">Courses</a>
+            </li>
+            <li><a href="../contact/contact.php" class="text-gray-400 hover:text-white transition text-sm">Contact</a>
+            </li>
+          </ul>
+        </div>
+        <div class="flex flex-col items-end">
+          <h3 class="text-sm font-semibold mb-2">Follow Us</h3>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-white transition">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition">
+              <i class="fab fa-instagram"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 mt-4 pt-4 text-center">
+        <p class="text-gray-400 text-xs">&copy; 2024 Youdemy. All rights reserved.</p>
+      </div>
     </div>
-    <!--======= Header area start =======-->
+  </footer> -->
 
-
-    <!-- main body -->
-    <main class="bg-transparent">
-        <!-- banner section -->
-        <section>
-            <div class="container-fluid-2">
-                <div
-                    class="bg-primaryColor p-5 md:p-10 rounded-5 flex justify-center md:justify-between items-center flex-wrap gap-2">
-                    <div
-                        class="flex items-center flex-wrap justify-center sm:justify-start">
-                        <div class="mr-5">
-                            <img
-                                src="../../assets/images/dashbord/dashbord__2.jpg"
-                                alt=""
-                                class="w-27 h-27 md:w-22 md:h-22 lg:w-27 lg:h-27 rounded-full p-1 border-2 border-darkdeep7 box-content">
-                        </div>
-                        <div class="text-whiteColor font-bold text-center sm:text-start">
-                            <h5 class="text-xl leading-1.2 mb-5px">Hello</h5>
-                            <h2 class="text-2xl leading-1.24">Michle Obema</h2>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-yellow">
-                            <i class="icofont-star"></i>
-                            <i class="icofont-star"></i>
-                            <i class="icofont-star"></i>
-                            <i class="icofont-star"></i>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="feather feather-star inline-block">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                            </svg>
-                        </div>
-                        <p class="text-whiteColor">4.0 (120 Reviews)</p>
-                    </div>
-                    <div>
-                        <a
-                            href="create-course.html"
-                            class="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px border border-whiteColor hover:text-primaryColor hover:bg-whiteColor rounded group text-nowrap flex gap-1 items-center">
-                            Create a New Course
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="feather feather-arrow-right">
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!--dashbord menu section -->
-        <section>
-            <div class="container-fluid-2">
-                <div
-                    class="grid grid-cols-1 lg:grid-cols-12 gap-30px pt-30px pb-100px">
-                    <div class="lg:col-start-1 lg:col-span-3">
-                        <!-- navigation menu -->
-                        <div
-                            class="p-30px pt-5 lg:p-5 2xl:p-30px 2xl:pt-5 rounded-lg2 shadow-accordion dark:shadow-accordion-dark bg-whiteColor dark:bg-whiteColor-dark">
-                            <!-- greeting -->
-                            <h5
-                                class="text-sm leading-1 font-semibold uppercase text-contentColor dark:text-contentColor-dark bg-lightGrey5 dark:bg-whiteColor-dark p-10px pb-7px mt-5 mb-10px">
-                                WELCOME, MICLE OBEMA
-                            </h5>
-                            <ul>
-                                <li
-                                    class="py-10px border-b border-borderColor dark:border-borderColor-dark">
-                                    <a
-                                        href="admindashboard.php"
-                                        class="text-primaryColor hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="feather feather-home">
-                                            <path
-                                                d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                                        </svg>
-                                        Dashboard</a>
-                                </li>
-                                <li
-                                    class="py-10px border-b border-borderColor dark:border-borderColor-dark">
-                                    <a
-                                        href="profile.php"
-                                        class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="feather feather-user">
-                                            <path
-                                                d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                            <circle cx="12" cy="7" r="4"></circle>
-                                        </svg>
-                                        My Profile</a>
-                                </li>
-
-                                <li
-                                    class="py-10px border-b border-borderColor dark:border-borderColor-dark">
-                                    <a
-                                        href="admincourses.php"
-                                        class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="feather feather-bookmark">
-                                            <path
-                                                d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                                        </svg>
-                                        Courses</a>
-                                </li>
-                                <li
-                                    class="py-10px border-b border-borderColor dark:border-borderColor-dark">
-                                    <a
-                                        href="adminteachers.php"
-                                        class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="feather feather-user">
-                                            <path
-                                                d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                            <circle cx="12" cy="7" r="4"></circle>
-                                        </svg>
-                                        Teachers & Students</a>
-                                </li>
-                                <li
-                                    class="py-10px border-b border-borderColor dark:border-borderColor-dark">
-                                    <a
-                                        href="admincategory.php"
-                                        class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="feather feather-star">
-                                            <polygon
-                                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                        </svg>
-                                        Category & Tags</a>
-                                </li>
-
-                            </ul>
-                            <!-- user -->
-                            <h5
-                                class="text-sm leading-1 font-semibold uppercase text-contentColor dark:text-contentColor-dark bg-lightGrey5 dark:bg-whiteColor-dark p-10px pb-7px mt-5 mb-10px">
-                                USER
-                            </h5>
-                            <ul>
-                                <li
-                                    class="py-10px border-b border-borderColor dark:border-borderColor-dark">
-                                    <a
-                                        href="settings.php"
-                                        class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="feather feather-settings">
-                                            <circle cx="12" cy="12" r="3"></circle>
-                                            <path
-                                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                                        </svg>
-                                        Settings</a>
-                                </li>
-
-                                <li
-                                    class="py-10px border-b border-borderColor dark:border-borderColor-dark">
-                                    <a
-                                        href="./../logout.php"
-                                        class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8 flex gap-3 text-nowrap"><svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="feather feather-volume-1">
-                                            <polygon
-                                                points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                                        </svg>
-                                        Logout</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <!-- dashboard content -->
-                    <div class="lg:col-start-4 lg:col-span-9">
-                        <!-- counter -->
-                        <div
-                            class="p-10px md:px-10 md:py-50px mb-30px bg-whiteColor dark:bg-whiteColor-dark shadow-accordion dark:shadow-accordion-dark rounded-5">
-                            <div
-                                class="mb-6 pb-5 border-b-2 border-borderColor dark:border-borderColor-dark">
-                                <h2
-                                    class="text-2xl font-bold text-blackColor dark:text-blackColor-dark">
-                                    Dashboard
-                                </h2>
-                            </div>
-
-                            <!-- counter area -->
-                            <div
-                                class="counter grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-30px gap-y-5 pb-5">
-                                <div
-                                    class="p-5 md:px-10 md:py-50px bg-lightGrey5 dark:bg-whiteColor-dark rounded-lg2 shadow-accordion-dark">
-                                    <div class="flex gap-4">
-                                        <div>
-                                            <img
-                                                src="../../assets/images/counter/counter__1.png"
-                                                alt="">
-                                        </div>
-                                        <div>
-                                            <p
-                                                class="text-size-34 leading-[1.1] text-blackColor font-bold font-hind dark:text-blackColor-dark">
-                                                <span data-countup-number="900"> 900</span><span>+</span>
-                                            </p>
-                                            <p
-                                                class="text-blackColor font-medium leading-[18px] dark:text-blackColor-dark">
-                                                Enrolled Courses
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="p-5 md:px-10 md:py-50px bg-lightGrey5 dark:bg-whiteColor-dark rounded-lg2 shadow-accordion-dark">
-                                    <div class="flex gap-4">
-                                        <div>
-                                            <img
-                                                src="../../assets/images/counter/counter__2.png"
-                                                alt="">
-                                        </div>
-                                        <div>
-                                            <p
-                                                class="text-size-34 leading-[1.1] text-blackColor font-bold font-hind dark:text-blackColor-dark">
-                                                <span data-countup-number="500">500</span><span>+</span>
-                                            </p>
-                                            <p
-                                                class="text-blackColor font-medium leading-[18px] dark:text-blackColor-dark">
-                                                Active Courses
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="p-5 md:px-10 md:py-50px bg-lightGrey5 dark:bg-whiteColor-dark rounded-lg2 shadow-accordion-dark">
-                                    <div class="flex gap-4">
-                                        <div>
-                                            <img
-                                                src="../../assets/images/counter/counter__3.png"
-                                                alt="">
-                                        </div>
-                                        <div>
-                                            <p
-                                                class="text-size-34 leading-[1.1] text-blackColor font-bold font-hind dark:text-blackColor-dark">
-                                                <span data-countup-number="300">300</span><span>k</span>
-                                            </p>
-                                            <p
-                                                class="text-blackColor font-medium leading-[18px] dark:text-blackColor-dark">
-                                                Complete Courses
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="p-5 md:px-10 md:py-50px bg-lightGrey5 dark:bg-whiteColor-dark rounded-lg2 shadow-accordion-dark">
-                                    <div class="flex gap-4">
-                                        <div>
-                                            <img
-                                                src="../../assets/images/counter/counter__4.png"
-                                                alt="">
-                                        </div>
-                                        <div>
-                                            <p
-                                                class="text-size-34 leading-[1.1] text-blackColor font-bold font-hind dark:text-blackColor-dark">
-                                                <span data-countup-number="1500">1500</span><span>+</span>
-                                            </p>
-                                            <p
-                                                class="text-blackColor font-medium leading-[18px] dark:text-blackColor-dark">
-                                                Total Courses
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="p-5 md:px-10 md:py-50px bg-lightGrey5 dark:bg-whiteColor-dark rounded-lg2 shadow-accordion-dark">
-                                    <div class="flex gap-4">
-                                        <div>
-                                            <img
-                                                src="../../assets/images/counter/counter__3.png"
-                                                alt="">
-                                        </div>
-                                        <div>
-                                            <p
-                                                class="text-size-34 leading-[1.1] text-blackColor font-bold font-hind dark:text-blackColor-dark">
-                                                <span data-countup-number="30">30</span><span>k</span>
-                                            </p>
-                                            <p
-                                                class="text-blackColor font-medium leading-[18px] dark:text-blackColor-dark">
-                                                Total Students
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="p-5 md:px-10 md:py-50px bg-lightGrey5 dark:bg-whiteColor-dark rounded-lg2 shadow-accordion-dark">
-                                    <div class="flex gap-4">
-                                        <div>
-                                            <img
-                                                src="../../assets/images/counter/counter__4.png"
-                                                alt="">
-                                        </div>
-                                        <div>
-                                            <p
-                                                class="text-size-34 leading-[1.1] text-blackColor font-bold font-hind dark:text-blackColor-dark">
-                                                <span data-countup-number="90">90</span><span>,000k</span>
-                                            </p>
-                                            <p
-                                                class="text-blackColor font-medium leading-[18px] dark:text-blackColor-dark">
-                                                Total Earning
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- chart area-->
-                        <div
-                            class="py-10 px-5 mb-30px bg-whiteColor dark:bg-whiteColor-dark shadow-accordion dark:shadow-accordion-dark rounded-5">
-                            <div class="flex flex-wrap">
-                                <!-- linechart -->
-                                <div class="w-full md:w-65%">
-                                    <div class="md:px-5 py-10px md:py-0">
-                                        <div
-                                            class="mb-6 pb-5 border-b-2 border-borderColor dark:border-borderColor-dark flex justify-between items-center gap-2">
-                                            <h2
-                                                class="text-2xl font-bold text-blackColor dark:text-blackColor-dark">
-                                                Dashboard
-                                            </h2>
-                                            <div class="bg-whiteColor rounded-md relative">
-                                                <select
-                                                    class="bg-transparent text-darkBlue w-42.5 px-3 py-6px focus:outline-none block appearance-none leading-1.5 relative z-20 focus:shadow-select border border-borderColor6 rounded-md">
-                                                    <option selected="" value="HTML">HTML</option>
-                                                    <option value="CSS">CSS</option>
-                                                    <option value="Javascript">Javascript</option>
-                                                    <option value="PHP">PHP</option>
-                                                    <option value="WordPress">WordPress</option>
-                                                </select>
-                                                <i
-                                                    class="icofont-simple-down absolute top-1/2 right-3 -translate-y-1/2 block text-lg z-10"></i>
-                                            </div>
-                                        </div>
-                                        <canvas id="lineChart"></canvas>
-                                    </div>
-                                </div>
-
-                                <!-- piechart -->
-                                <div class="w-full md:w-35%">
-                                    <div class="md:px-5 py-10px md:py-0">
-                                        <div
-                                            class="mb-6 pb-5 border-b-2 border-borderColor dark:border-borderColor-dark flex justify-between items-center gap-2">
-                                            <h2
-                                                class="text-2xl font-bold text-blackColor dark:text-blackColor-dark">
-                                                Traffic
-                                            </h2>
-                                            <div class="bg-whiteColor rounded-md relative">
-                                                <select
-                                                    class="bg-transparent text-darkBlue w-42.5 px-3 py-6px focus:outline-none block appearance-none leading-1.5 relative z-20 focus:shadow-select border border-borderColor6 rounded-md">
-                                                    <option selected="" value="Today">Today</option>
-                                                    <option value="Weekly">Weekly</option>
-                                                    <option value="Monthly">Monthly</option>
-                                                    <option value="Yearly">Yearly</option>
-                                                </select>
-                                                <i
-                                                    class="icofont-simple-down absolute top-1/2 right-3 -translate-y-1/2 block text-lg z-10"></i>
-                                            </div>
-                                        </div>
-                                        <canvas id="pieChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- popular instructor and recent course area -->
-                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-30px">
-                            <!-- popular instructor -->
-
-                            <!-- Recent Course -->
-
-                        </div>
-                        <!-- Notice Board and Notifications area -->
-                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-30px">
-                            <!-- Notice Board -->
-
-
-                            <!-- notifications -->
-
-                        </div>
-
-                        <div
-                            class="p-10px md:px-10 md:py-50px mb-30px bg-whiteColor dark:bg-whiteColor-dark shadow-accordion dark:shadow-accordion-dark rounded-5 max-h-137.5 overflow-auto">
-                            <div
-                                class="mb-6 pb-5 border-b-2 border-borderColor dark:border-borderColor-dark flex items-center justify-between gap-2 flex-wrap">
-                                <h2
-                                    class="text-2xl font-bold text-blackColor dark:text-blackColor-dark">
-                                    Total Feedbacks
-                                </h2>
-                                <a
-                                    href="../../course.html"
-                                    class="text-contentColor dark:text-contentColor-dark hover:text-primaryColor dark:hover:text-primaryColor leading-1.8">See More...</a>
-                            </div>
-                            <div class="overflow-auto">
-                                <table class="w-full text-left text-nowrap">
-                                    <thead
-                                        class="text-sm md:text-base text-blackColor dark:text-blackColor-dark bg-lightGrey5 dark:bg-whiteColor-dark leading-1.8 md:leading-1.8">
-                                        <tr>
-                                            <th class="px-5px py-10px md:px-5">Course Name</th>
-                                            <th class="px-5px py-10px md:px-5">Enrolled</th>
-                                            <th class="px-5px py-10px md:px-5">Rating</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody
-                                        class="text-size-13 md:text-base text-contentColor dark:text-contentColor-dark font-normal">
-                                        <tr class="leading-1.8 md:leading-1.8">
-                                            <th class="px-5px py-10px md:px-5 font-normal">
-                                                <p>Javascript</p>
-                                            </th>
-                                            <td class="px-5px py-10px md:px-5">
-                                                <p>1100</p>
-                                            </td>
-                                            <td class="px-5px py-10px md:px-5">
-                                                <div class="text-primaryColor">
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="24"
-                                                        height="24"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        stroke-width="2"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        class="feather feather-star w-14px inline-block">
-                                                        <polygon
-                                                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                                    </svg>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr
-                                            class="leading-1.8 md:leading-1.8 bg-lightGrey5 dark:bg-whiteColor-dark">
-                                            <th class="px-5px py-10px md:px-5 font-normal">
-                                                <p>PHP</p>
-                                            </th>
-                                            <td class="px-5px py-10px md:px-5">
-                                                <p>700</p>
-                                            </td>
-                                            <td class="px-5px py-10px md:px-5">
-                                                <div class="text-primaryColor">
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="24"
-                                                        height="24"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        stroke-width="2"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        class="feather feather-star w-14px inline-block">
-                                                        <polygon
-                                                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                                    </svg>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr class="leading-1.8 md:leading-1.8">
-                                            <th class="px-5px py-10px md:px-5 font-normal">
-                                                <p>HTML</p>
-                                            </th>
-                                            <td class="px-5px py-10px md:px-5">
-                                                <p>1350</p>
-                                            </td>
-                                            <td class="px-5px py-10px md:px-5">
-                                                <div class="text-primaryColor">
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="24"
-                                                        height="24"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        stroke-width="2"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        class="feather feather-star w-14px inline-block">
-                                                        <polygon
-                                                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                                    </svg>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr
-                                            class="leading-1.8 md:leading-1.8 bg-lightGrey5 dark:bg-whiteColor-dark">
-                                            <th class="px-5px py-10px md:px-5 font-normal">
-                                                <p>Graphic</p>
-                                            </th>
-                                            <td class="px-5px py-10px md:px-5">
-                                                <p>1266</p>
-                                            </td>
-                                            <td class="px-5px py-10px md:px-5">
-                                                <div class="text-primaryColor">
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <i class="icofont-star"></i>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="24"
-                                                        height="24"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        stroke-width="2"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        class="feather feather-star w-14px inline-block">
-                                                        <polygon
-                                                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                                    </svg>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <script src="../../../../../cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
-    <script src="../../assets/js/swiper-bundle.min.js"></script>
-    <script src="../../assets/js/isotope.pkgd.min.js"></script>
-    <script src="../../assets/js/accordion.js"></script>
-    <script src="../../assets/js/chart.js"></script>
-    <script src="../../assets/js/count.js"></script>
-    <script src="../../assets/js/countdown.js"></script>
-    <script src="../../assets/js/counterup.js"></script>
-    <script src="../../assets/js/dropdown.js"></script>
-    <script src="../../assets/js/filter.js"></script>
-    <script src="../../assets/js/mobileMenu.js"></script>
-    <script src="../../assets/js/modal.js"></script>
-    <script src="../../assets/js/popup.js"></script>
-    <script src="../../assets/js/preloader.js"></script>
-    <script src="../../assets/js/scrollUp.js"></script>
-    <script src="../../assets/js/slider.js"></script>
-    <script src="../../assets/js/smoothScroll.js"></script>
-    <script src="../../assets/js/stickyHeader.js"></script>
-    <script src="../../assets/js/tabs.js"></script>
-    <script src="../../assets/js/theme.js"></script>
-    <script src="../../assets/js/videoModal.js"></script>
-    <script src="../../assets/js/vanilla-tilt.js"></script>
-    <script src="../../assets/js/aos.js"></script>
-    <script src="../../assets/js/main.js"></script>
+  <script src="../../js/menu.js"></script>
+  <script src="../../js/messages.js"></script>
+  <script src="../../js/alert.js"></script>
+  <script src="../../js/adminDashboard.js"></script>
 </body>
-
-<!-- Mirrored from html.themewin.com/edurcok-preview-tailwind/edurock/pages/dashboards/admin-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 12 Jan 2025 03:29:09 GMT -->
 
 </html>
