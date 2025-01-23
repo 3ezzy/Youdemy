@@ -39,7 +39,6 @@ if (isset($_SESSION['user'])) {
   if ($user instanceof Student && !$courseNotFound) {
     $isEnrolled = $course->checkUserEnrollment($PDOConn, $user->getId());
   }
-
 } else {
   $connected = false;
 }
@@ -90,7 +89,7 @@ if (isset($_SESSION['user'])) {
                 </a>
               </li>';
               } else {
-                ?>
+              ?>
                 <li class="relative">
                   <button id="dropdownButton"
                     class="flex items-center space-x-2 bg-[#344CB7] text-white px-4 py-2 rounded-full hover:bg-[#577BC1] transition-colors duration-300">
@@ -118,7 +117,7 @@ if (isset($_SESSION['user'])) {
                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#344CB7] hover:text-white">Logout</a>
                   </div>
                 </li>
-                <?php
+              <?php
               }
               ?>
             </ul>
@@ -133,19 +132,30 @@ if (isset($_SESSION['user'])) {
 
     <?php if (!$connected) { ?>
       <div class="min-h-[60vh] flex items-center justify-center p-4">
-        <div class="text-center p-6">
-          <div class="mb-4 text-orange-500">
-            <i class="fas fa-user-lock text-5xl"></i>
+        <div class="text-center p-6 bg-white rounded-xl shadow-lg border border-gray-100 max-w-md w-full">
+          <!-- Icon -->
+          <div class="mb-4 text-[#344CB7]">
+            <i class="fas fa-user-lock text-6xl"></i>
           </div>
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">Access Restricted</h2>
-          <p class="text-gray-600 mb-6">Log in to enjoy access to detailed course information.</p>
+
+          <!-- Heading -->
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Access Restricted </h2>
+
+          <!-- Description -->
+          <p class="text-gray-600 mb-6">Log in to unlock detailed course information and start learning! </p>
+
+          <!-- Log In Button -->
           <a href="../auth/login.php"
-            class="inline-block bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transform hover:-translate-y-0.5 transition">
-            Log In
+            class="inline-block bg-[#344CB7] text-white px-8 py-3 rounded-full hover:bg-[#577BC1] transform hover:-translate-y-0.5 transition duration-300">
+            <i class="fas fa-sign-in-alt mr-2"></i> Log In
           </a>
+
+          <!-- Sign Up Link -->
           <p class="mt-4 text-sm text-gray-600">
             Don't have an account?
-            <a href="../auth/register.php" class="text-orange-500 hover:underline">Sign Up</a>
+            <a href="../auth/register.php" class="text-[#344CB7] hover:underline hover:text-[#577BC1] transition-colors duration-300">
+              Sign Up <i class="fas fa-arrow-right ml-1"></i>
+            </a>
           </p>
         </div>
       </div>
@@ -202,7 +212,7 @@ if (isset($_SESSION['user'])) {
         </div>
       </div>
 
-      <?php
+    <?php
     } elseif ($courseNotFound) { ?>
 
       <div class="min-h-[60vh] flex items-center justify-center px-4">
@@ -223,155 +233,155 @@ if (isset($_SESSION['user'])) {
 
     
      <!-- Course detail -->
-     <div class="container mx-auto px-4 py-8">
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Main Content -->
-    <div class="lg:col-span-2 space-y-6">
-      <!-- Course Cover Section -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="relative">
-          <img src="../../uploads/covers/<?= htmlspecialchars($course->getImage()) ?>" alt="Course cover"
-            class="w-full h-[400px] object-cover">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-          <div class="absolute bottom-0 left-0 p-6 text-white">
-            <span class="bg-[#344CB7]/90 text-white text-sm px-3 py-1 rounded-full">
-              <?= htmlspecialchars($categoryName) ?>
-            </span>
-            <h1 class="text-3xl font-bold mt-3 mb-2">
-              <?= htmlspecialchars($course->getTitle()) ?>
-            </h1>
-            <div class="flex flex-wrap items-center gap-4 text-sm">
-              <div class="flex items-center gap-2">
-                <i class="fas fa-user-circle"></i>
-                <span><?= htmlspecialchars($teacherName) ?></span>
+     <div class=" container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <!-- Main Content -->
+              <div class="lg:col-span-2 space-y-6">
+                <!-- Course Cover Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div class="relative">
+                    <img src="../../uploads/covers/<?= htmlspecialchars($course->getImage()) ?>" alt="Course cover"
+                      class="w-full h-[400px] object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6 text-white">
+                      <span class="bg-[#344CB7]/90 text-white text-sm px-3 py-1 rounded-full">
+                        <?= htmlspecialchars($categoryName) ?>
+                      </span>
+                      <h1 class="text-3xl font-bold mt-3 mb-2">
+                        <?= htmlspecialchars($course->getTitle()) ?>
+                      </h1>
+                      <div class="flex flex-wrap items-center gap-4 text-sm">
+                        <div class="flex items-center gap-2">
+                          <i class="fas fa-user-circle"></i>
+                          <span><?= htmlspecialchars($teacherName) ?></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <i class="fas fa-users"></i>
+                          <span><?= $enrollmentCount ?> enrolled</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <i class="fas fa-calendar"></i>
+                          <span><?= date('F j, Y', strtotime($course->getCreatedAt())) ?></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Course Description and Content Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div class="p-6">
+                    <!-- Tags -->
+                    <div class="flex flex-wrap gap-2 mb-6">
+                      <?php foreach ($tags as $tag) { ?>
+                        <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
+                          <?= htmlspecialchars($tag['tag_name']) ?>
+                        </span>
+                      <?php } ?>
+                    </div>
+
+                    <!-- Course Description -->
+                    <div class="prose max-w-none">
+                      <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="fas fa-info-circle text-[#344CB7]"></i>
+                        Course Description
+                      </h2>
+                      <p class="text-gray-600">
+                        <?= nl2br(htmlspecialchars($course->getDescription())) ?>
+                      </p>
+                    </div>
+
+                    <!-- Course Content -->
+                    <div class="mt-8">
+                      <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="fas fa-book-open text-[#344CB7]"></i>
+                        Course Content
+                      </h2>
+                      <?php if ($course instanceof VideoCourse) { ?>
+                        <div class="rounded-lg overflow-hidden bg-black">
+                          <video controls class="w-full aspect-video">
+                            <source src="../../uploads/videos/<?= htmlspecialchars($course->getVideoPath()) ?>" type="video/mp4">
+                            Your browser does not support the video tag.
+                          </video>
+                        </div>
+                      <?php } else { ?>
+                        <div class="bg-gray-50 rounded-lg p-6 prose max-w-none">
+                          <?= nl2br(htmlspecialchars($course->getTextContent())) ?>
+                        </div>
+                      <?php } ?>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="flex items-center gap-2">
-                <i class="fas fa-users"></i>
-                <span><?= $enrollmentCount ?> enrolled</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <i class="fas fa-calendar"></i>
-                <span><?= date('F j, Y', strtotime($course->getCreatedAt())) ?></span>
+
+              <!-- Sidebar -->
+              <div class="lg:col-span-1 z-10">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-28">
+                  <?php if (!$connected) { ?>
+                    <!-- Sign In to Enroll -->
+                    <div class="text-center space-y-4">
+                      <div class="text-4xl text-[#344CB7]">
+                        <i class="fas fa-lock"></i>
+                      </div>
+                      <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Ready to Start Learning?</h3>
+                        <p class="text-gray-600 mb-4">Sign in to enroll in this course</p>
+                        <a href="../auth/login.php"
+                          class="inline-block bg-[#344CB7] text-white px-8 py-3 rounded-full hover:bg-[#577BC1] transform hover:-translate-y-0.5 transition">
+                          Sign In to Enroll
+                        </a>
+                      </div>
+                    </div>
+                  <?php } elseif ($user instanceof Student) { ?>
+                    <?php if ($isEnrolled) { ?>
+                      <!-- Already Enrolled -->
+                      <div class="text-center space-y-4">
+                        <div class="text-4xl text-green-500">
+                          <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                          <h3 class="text-lg font-semibold text-gray-900 mb-2">You're Enrolled!</h3>
+                          <p class="text-gray-600 text-sm">Continue learning from your courses page</p>
+                          <a href="../student/myCourses.php"
+                            class="inline-block mt-4 bg-green-500 text-white px-8 py-3 rounded-full hover:bg-green-600 transform hover:-translate-y-0.5 transition">
+                            Go to My Courses
+                          </a>
+                        </div>
+                      </div>
+                    <?php } else { ?>
+                      <!-- Enroll Now -->
+                      <div class="text-center space-y-4">
+                        <div class="text-4xl text-[#344CB7]">
+                          <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <form action="../student/process/enrollCourse.php" method="POST">
+                          <input type="hidden" name="courseId" value="<?= $course->getId() ?>">
+                          <h3 class="text-lg font-semibold text-gray-900 mb-2">Ready to Start Learning?</h3>
+                          <p class="text-gray-600 mb-4">Enroll now to access the full course content</p>
+                          <button type="submit"
+                            class="bg-[#344CB7] text-white px-10 py-3 rounded-full hover:bg-[#577BC1] transform hover:-translate-y-0.5 transition w-full">
+                            Enroll Now
+                          </button>
+                        </form>
+                      </div>
+                    <?php } ?>
+                  <?php } else { ?>
+                    <!-- Access Restricted -->
+                    <div class="text-center space-y-4">
+                      <div class="text-4xl text-gray-500">
+                        <i class="fas fa-info-circle"></i>
+                      </div>
+                      <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Course Access</h3>
+                        <p class="text-gray-600 text-sm">Only students can enroll in courses. You're currently logged in as
+                          a <?= $user instanceof Teacher ? 'teacher' : 'admin' ?>.</p>
+                      </div>
+                    </div>
+                  <?php } ?>
+                </div>
               </div>
             </div>
-          </div>
         </div>
-      </div>
-
-      <!-- Course Description and Content Section -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-6">
-          <!-- Tags -->
-          <div class="flex flex-wrap gap-2 mb-6">
-            <?php foreach ($tags as $tag) { ?>
-              <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
-                <?= htmlspecialchars($tag['tag_name']) ?>
-              </span>
-            <?php } ?>
-          </div>
-
-          <!-- Course Description -->
-          <div class="prose max-w-none">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <i class="fas fa-info-circle text-[#344CB7]"></i>
-              Course Description
-            </h2>
-            <p class="text-gray-600">
-              <?= nl2br(htmlspecialchars($course->getDescription())) ?>
-            </p>
-          </div>
-
-          <!-- Course Content -->
-          <div class="mt-8">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <i class="fas fa-book-open text-[#344CB7]"></i>
-              Course Content
-            </h2>
-            <?php if ($course instanceof VideoCourse) { ?>
-              <div class="rounded-lg overflow-hidden bg-black">
-                <video controls class="w-full aspect-video">
-                  <source src="../../uploads/videos/<?= htmlspecialchars($course->getVideoPath()) ?>" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            <?php } else { ?>
-              <div class="bg-gray-50 rounded-lg p-6 prose max-w-none">
-                <?= nl2br(htmlspecialchars($course->getTextContent())) ?>
-              </div>
-            <?php } ?>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sidebar -->
-    <div class="lg:col-span-1 z-10">
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-28">
-        <?php if (!$connected) { ?>
-          <!-- Sign In to Enroll -->
-          <div class="text-center space-y-4">
-            <div class="text-4xl text-[#344CB7]">
-              <i class="fas fa-lock"></i>
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Ready to Start Learning?</h3>
-              <p class="text-gray-600 mb-4">Sign in to enroll in this course</p>
-              <a href="../auth/login.php"
-                class="inline-block bg-[#344CB7] text-white px-8 py-3 rounded-full hover:bg-[#577BC1] transform hover:-translate-y-0.5 transition">
-                Sign In to Enroll
-              </a>
-            </div>
-          </div>
-        <?php } elseif ($user instanceof Student) { ?>
-          <?php if ($isEnrolled) { ?>
-            <!-- Already Enrolled -->
-            <div class="text-center space-y-4">
-              <div class="text-4xl text-green-500">
-                <i class="fas fa-check-circle"></i>
-              </div>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">You're Enrolled!</h3>
-                <p class="text-gray-600 text-sm">Continue learning from your courses page</p>
-                <a href="../student/myCourses.php"
-                  class="inline-block mt-4 bg-green-500 text-white px-8 py-3 rounded-full hover:bg-green-600 transform hover:-translate-y-0.5 transition">
-                  Go to My Courses
-                </a>
-              </div>
-            </div>
-          <?php } else { ?>
-            <!-- Enroll Now -->
-            <div class="text-center space-y-4">
-              <div class="text-4xl text-[#344CB7]">
-                <i class="fas fa-graduation-cap"></i>
-              </div>
-              <form action="../student/process/enrollCourse.php" method="POST">
-                <input type="hidden" name="courseId" value="<?= $course->getId() ?>">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Ready to Start Learning?</h3>
-                <p class="text-gray-600 mb-4">Enroll now to access the full course content</p>
-                <button type="submit"
-                  class="bg-[#344CB7] text-white px-10 py-3 rounded-full hover:bg-[#577BC1] transform hover:-translate-y-0.5 transition w-full">
-                  Enroll Now
-                </button>
-              </form>
-            </div>
-          <?php } ?>
-        <?php } else { ?>
-          <!-- Access Restricted -->
-          <div class="text-center space-y-4">
-            <div class="text-4xl text-gray-500">
-              <i class="fas fa-info-circle"></i>
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Course Access</h3>
-              <p class="text-gray-600 text-sm">Only students can enroll in courses. You're currently logged in as
-                a <?= $user instanceof Teacher ? 'teacher' : 'admin' ?>.</p>
-            </div>
-          </div>
-        <?php } ?>
-      </div>
-    </div>
-  </div>
-</div>
       <?php } ?>
   </main>
 
