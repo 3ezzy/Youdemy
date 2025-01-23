@@ -170,7 +170,7 @@ $categories = Category::getAllCategories($PDOConn);
                     </p>
                     <p class="text-xs text-gray-500">PNG, JPG or JPEG (MAX. 5MB)</p>
                   </div>
-                  <input id="courseCover" name="image" type="file" class="hidden" accept="image/png, image/jpeg">
+                  <input id="courseCover" name="image" type="file" class="hidden" accept="image/png, image/jpeg, image/jpg, image/webp">
                 </label>
               </div>
 
@@ -224,7 +224,7 @@ $categories = Category::getAllCategories($PDOConn);
                         <p class="text-xs text-gray-500">MP4, MKV or WebM (MAX. 100MB)</p>
                       </div>
                       <input id="courseVideo" name="video" type="file" class="hidden"
-                        accept="video/mp4,video/webm,video/mkv">
+                        accept="video/*" >
                     </label>
                   </div>
                 </div>
