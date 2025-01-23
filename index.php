@@ -153,44 +153,44 @@ $latestCourses = Course::getLatestCourses($PDOConn);
     <div class="container mx-auto px-4">
       <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Latest Courses</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-  <!-- course -->
-  <?php
-  foreach ($latestCourses as $course) {
-  ?>
-    <div
-      class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
-      <div class="relative h-48 bg-gray-100">
-        <img src="uploads/covers/<?= htmlspecialchars($course['image']) ?>" alt="Course thumbnail"
-          class="w-full h-full object-cover">
-      </div>
-      <div class="p-6">
-        <span
-          class="bg-[#344CB7]/10 text-[#344CB7] text-xs px-2 py-1 rounded-full"><?= htmlspecialchars($course['category_name']) ?></span>
-        <a href="pages/courses/courseDetails.php?id=<?= urlencode($course['id']) ?>" class="block">
-          <h3
-            class="text-lg font-semibold text-gray-900 my-3 hover:text-[#344CB7] transition-colors duration-300 break-words line-clamp-2">
-            <?= htmlspecialchars($course['title']) ?>
-          </h3>
-        </a>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-[#344CB7]/10 rounded-full flex items-center justify-center">
-              <i class="fas fa-user text-[#344CB7]"></i>
+        <!-- course -->
+        <?php
+        foreach ($latestCourses as $course) {
+        ?>
+          <div
+            class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
+            <div class="relative h-48 bg-gray-100">
+              <img src="uploads/covers/<?= htmlspecialchars($course['image']) ?>" alt="Course thumbnail"
+                class="w-full h-full object-cover">
             </div>
-            <p class="text-sm text-gray-600">
-              <?= htmlspecialchars($course['teacher_name']) ?>
-            </p>
+            <div class="p-6">
+              <span
+                class="bg-[#344CB7]/10 text-[#344CB7] text-xs px-2 py-1 rounded-full"><?= htmlspecialchars($course['category_name']) ?></span>
+              <a href="pages/courses/courseDetails.php?id=<?= urlencode($course['id']) ?>" class="block">
+                <h3
+                  class="text-lg font-semibold text-gray-900 my-3 hover:text-[#344CB7] transition-colors duration-300 break-words line-clamp-2">
+                  <?= htmlspecialchars($course['title']) ?>
+                </h3>
+              </a>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 bg-[#344CB7]/10 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-[#344CB7]"></i>
+                  </div>
+                  <p class="text-sm text-gray-600">
+                    <?= htmlspecialchars($course['teacher_name']) ?>
+                  </p>
+                </div>
+                <div class="text-sm text-gray-500">
+                  <?= date('F j, Y', strtotime($course['created_at'])) ?>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="text-sm text-gray-500">
-            <?= date('F j, Y', strtotime($course['created_at'])) ?>
-          </div>
-        </div>
+        <?php
+        }
+        ?>
       </div>
-    </div>
-  <?php
-  }
-  ?>
-</div>
       <div class="text-center mt-12">
         <a href="pages/courses/courses.php"
           class="inline-block bg-gray-900 text-white px-8 py-3 rounded-full font-medium hover:bg-gray-800 transform hover:-translate-y-0.5 transition">

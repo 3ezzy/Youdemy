@@ -189,7 +189,7 @@ if (isset($_SESSION['user'])) {
     </div>
   </section>
 
-  <footer class="bg-gray-900 text-white mt-auto">
+  <!-- <footer class="bg-gray-900 text-white mt-auto">
     <div class="container mx-auto px-4 py-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
         <div>
@@ -224,7 +224,7 @@ if (isset($_SESSION['user'])) {
         <p class="text-gray-400 text-xs">&copy; 2024 Youdemy. All rights reserved.</p>
       </div>
     </div>
-  </footer>
+  </footer> -->
 
   <script src="../../js/profile.js"></script>
   <script src="../../js/messages.js"></script>
